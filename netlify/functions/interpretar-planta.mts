@@ -46,11 +46,14 @@ export default async (req: Request, context: Context) => {
               type: "text",
               text:
                 "Este PDF é um estudo/projeto de arquitetura de interiores com a planta baixa de um ambiente corporativo. " +
-                "Liste cada peça de mobiliário corporativo necessária (mesas, cadeiras, armários, estações de trabalho etc.), " +
-                "o ambiente onde fica, e a quantidade — some as unidades quando houver mais de uma no mesmo ambiente. " +
-                'Quando a planta não tiver uma legenda explícita de quantidade, estime pela geometria/desenho e marque no campo "estimado" como true. ' +
-                "Responda APENAS com um array JSON, sem texto antes ou depois, sem markdown, no formato: " +
-                '[{"item":"descrição do móvel","ambiente":"nome do ambiente","quantidade":numero,"estimado":true|false}]',
+"Liste cada peça de mobiliário corporativo necessária (mesas, cadeiras, armários, estações de trabalho etc.) e o ambiente onde fica. " +
+"IMPORTANTE: a quantidade de cada item deve vir SOMENTE de contar unidades desenhadas de fato na planta (ex: marcadores numerados, ícones de móveis repetidos, ou uma legenda explícita de quantidade). " +
+"NUNCA use como quantidade: metragem quadrada (m²), medidas de largura/profundidade/altura, ou qualquer número de cota do desenho — esses são medidas, não contagem de itens. " +
+"Se não for possível contar com confiança, use quantidade 1 e marque estimado como true. " +
+"Some as unidades quando houver mais de uma peça idêntica no mesmo ambiente, mas nunca ultrapasse o razoável para o tamanho do ambiente informado. " +
+'Quando a planta não tiver uma legenda explícita de quantidade, estime pela geometria/desenho e marque no campo "estimado" como true. ' +
+"Responda APENAS com um array JSON, sem texto antes ou depois, sem markdown, no formato: " +
+'[{"item":"descrição do móvel","ambiente":"nome do ambiente","quantidade":numero,"estimado":true|false}]',
             },
           ],
         },
