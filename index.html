@@ -320,9 +320,11 @@ function priceOf(item){
 }
 
 // ---------- SEARCH ----------
+const STOPWORDS = new Set(['de','da','do','das','dos','e','o','a','os','as','em','no','na','com','para','por','um','uma']);
+
 function scoreMatch(query, product){
   const q = norm(query);
-  const qTokens = q.split(' ').filter(Boolean);
+  const qTokens = q.split(' ').filter(Boolean).filter(t=>!STOPWORDS.has(t));
   const name = norm(product.produto);
   const code = norm(product.codigo);
   let score = 0;
