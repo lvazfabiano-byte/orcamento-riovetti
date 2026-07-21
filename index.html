@@ -322,10 +322,15 @@ function priceOf(item){
 // ---------- SEARCH ----------
 const STOPWORDS = new Set(['de','da','do','das','dos','e','o','a','os','as','em','no','na','com','para','por','um','uma']);
 
+const CHAIR_WORDS = ['cadeira','poltrona'];
+
 function scoreMatch(query, product){
   const q = norm(query);
-  const qTokens = q.split(' ').filter(Boolean).filter(t=>!STOPWORDS.has(t));
   const name = norm(product.produto);
+  const qIsChair = CHAIR_WORDS.some(w=>q.includes(w));
+  const nameIsChair = CHAIR_WORDS.some(w=>name.includes(w));
+  if(qIsChair && !nameIsChair) return 0;
+  const qTokens = q.split(' ').filter(Boolean).filter(t=>!STOPWORDS.has(t));
   const code = norm(product.codigo);
   let score = 0;
   if(name.includes(q) && q.length>2) score += 40;
