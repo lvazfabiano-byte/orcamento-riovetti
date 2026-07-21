@@ -1,0 +1,746 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Riovetti | Orçamento Rápido</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Libre+Franklin:wght@400;500;600;700;800&family=Fraunces:opsz,wght@9..144,500;9..144,600&display=swap');
+
+  :root{
+    --ink:#1c1a19;
+    --paper:#f7f3ee;
+    --panel:#ffffff;
+    --line:#e4ddd3;
+    --red:#a11f24;
+    --red-dark:#7c1418;
+    --muted:#8a8078;
+    --ok:#3f6b4a;
+    --warn:#b3701f;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--paper);color:var(--ink);font-family:'Libre Franklin',sans-serif;}
+  ::selection{background:#f0d3d0;}
+
+  header{
+    background:var(--ink);
+    color:#f3ede4;
+    padding:22px 28px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    flex-wrap:wrap;
+    gap:12px;
+    border-bottom:4px solid var(--red);
+  }
+  header .brand{display:flex;align-items:baseline;gap:10px;}
+  header .brand .mark{font-family:'Fraunces',serif;font-weight:600;font-size:24px;letter-spacing:0.5px;}
+  header .brand .mark span{color:var(--red);}
+  header .brand .sub{font-size:12.5px;color:#b8afa4;letter-spacing:.03em;}
+  header .stat{font-size:12px;color:#b8afa4;}
+  header .stat b{color:#f3ede4;font-size:15px;display:block;font-family:'Fraunces',serif;}
+
+  main{max-width:1180px;margin:0 auto;padding:28px 24px 90px;}
+
+  .grid{display:grid;grid-template-columns:1.05fr 1.4fr;gap:22px;}
+  @media (max-width:920px){.grid{grid-template-columns:1fr;}}
+
+  .card{
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:3px;
+  }
+  .card h2{
+    font-family:'Fraunces',serif;
+    font-size:16px;
+    font-weight:600;
+    margin:0;
+    padding:14px 18px;
+    border-bottom:1px solid var(--line);
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+  }
+  .card h2 small{font-family:'Libre Franklin',sans-serif;font-weight:500;font-size:11.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;}
+  .card .body{padding:16px 18px;}
+
+  textarea{
+    width:100%;min-height:110px;resize:vertical;
+    border:1px solid var(--line);border-radius:3px;
+    padding:10px 12px;font-family:inherit;font-size:13.5px;
+    background:#fbf9f6;color:var(--ink);
+  }
+  textarea:focus, input:focus, select:focus{outline:2px solid var(--red);outline-offset:1px;}
+
+  .btn{
+    border:none;border-radius:3px;padding:10px 16px;font-size:13px;font-weight:600;
+    cursor:pointer;font-family:inherit;letter-spacing:.01em;
+  }
+  .btn-primary{background:var(--red);color:#fff;}
+  .btn-primary:hover{background:var(--red-dark);}
+  .btn-ghost{background:transparent;color:var(--ink);border:1px solid var(--line);}
+  .btn-ghost:hover{border-color:var(--ink);}
+  .btn-sm{padding:5px 10px;font-size:12px;}
+  .btn:disabled{opacity:.45;cursor:not-allowed;}
+
+  .row-flex{display:flex;gap:10px;align-items:center;flex-wrap:wrap;}
+
+  input[type=text], select{
+    border:1px solid var(--line);border-radius:3px;padding:9px 10px;
+    font-family:inherit;font-size:13.5px;background:#fbf9f6;color:var(--ink);
+  }
+  #searchBox{width:100%;}
+
+  .results{margin-top:10px;max-height:300px;overflow-y:auto;border-top:1px solid var(--line);}
+  .result-item{
+    display:flex;justify-content:space-between;align-items:center;
+    padding:9px 4px;border-bottom:1px solid var(--line);gap:10px;
+  }
+  .result-item .info{font-size:12.8px;}
+  .result-item .info .nm{font-weight:600;}
+  .result-item .info .meta{color:var(--muted);font-size:11.5px;margin-top:2px;}
+  .tag{
+    display:inline-block;font-size:10px;font-weight:700;text-transform:uppercase;
+    letter-spacing:.04em;padding:2px 6px;border-radius:2px;background:#f0e9de;color:#6b5f4f;margin-right:6px;
+  }
+
+  table{width:100%;border-collapse:collapse;font-size:13px;}
+  thead th{
+    text-align:left;font-size:10.5px;text-transform:uppercase;letter-spacing:.05em;
+    color:var(--muted);border-bottom:1px solid var(--line);padding:8px 6px;font-weight:600;
+  }
+  tbody td{padding:9px 6px;border-bottom:1px solid var(--line);vertical-align:middle;}
+  tbody tr:last-child td{border-bottom:none;}
+  td.num{text-align:right;font-variant-numeric:tabular-nums;}
+  input.qty{width:52px;text-align:center;padding:5px;}
+  select.linha-select{padding:5px 6px;font-size:12px;}
+
+  .empty{color:var(--muted);font-size:13px;padding:20px 6px;text-align:center;}
+
+  .totals{padding:16px 18px;border-top:1px solid var(--line);}
+  .totals .line{display:flex;justify-content:space-between;font-size:13.5px;padding:4px 0;}
+  .totals .line.grand{font-family:'Fraunces',serif;font-size:19px;font-weight:600;border-top:1px solid var(--line);margin-top:8px;padding-top:12px;}
+  .totals .line.grand .v{color:var(--red-dark);}
+
+  .modepick{display:flex;gap:0;border:1px solid var(--line);border-radius:3px;overflow:hidden;}
+  .modepick button{flex:1;background:#fff;border:none;padding:7px 10px;font-size:12px;font-weight:600;cursor:pointer;color:var(--muted);}
+  .modepick button.active{background:var(--ink);color:#fff;}
+
+  .pending{margin-top:10px;}
+  .pending .pend-item{
+    display:flex;justify-content:space-between;align-items:center;
+    background:#fbf1e8;border:1px solid #ecd9c2;border-radius:3px;padding:8px 10px;margin-bottom:6px;font-size:12.5px;
+  }
+  .pending .pend-item b{color:var(--warn);}
+
+  footer.actionbar{
+    position:sticky;bottom:0;background:var(--panel);border-top:1px solid var(--line);
+    padding:12px 24px;display:flex;justify-content:flex-end;gap:10px;
+  }
+
+  .badge-ok{color:var(--ok);font-size:11px;font-weight:600;}
+  .badge-warn{color:var(--warn);font-size:11px;font-weight:600;}
+
+  .review-amb{
+    font-family:'Fraunces',serif;font-weight:600;font-size:13.5px;color:var(--red-dark);
+    margin:14px 0 6px;padding-bottom:4px;border-bottom:1px solid var(--line);
+  }
+  .review-amb:first-child{margin-top:0;}
+  .review-row{
+    display:grid;grid-template-columns:20px 1fr 60px;gap:10px;align-items:center;
+    padding:8px 4px;border-bottom:1px solid var(--line);
+  }
+  .review-row .info .orig{font-size:11.5px;color:var(--muted);}
+  .review-row .info .match{font-size:13px;font-weight:600;margin-top:1px;}
+  .review-row .info .match.notfound{color:var(--warn);font-weight:600;}
+  .review-row input.rqty{width:52px;text-align:center;padding:5px;}
+
+  .small-note{font-size:11.5px;color:var(--muted);margin-top:8px;line-height:1.5;}
+  .divider{height:1px;background:var(--line);margin:14px 0;}
+
+  #meta input[type=text]{width:100%;margin-bottom:8px;}
+  label.f{display:block;font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);margin-bottom:4px;font-weight:600;}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="brand">
+    <div class="mark">GRUPO <span>RIOVETTI</span></div>
+    <div class="sub">Orçamento Rápido</div>
+  </div>
+  <div class="stat"><b id="catCount">--</b>itens no catálogo</div>
+</header>
+
+<main>
+
+  <div class="grid">
+    <!-- LEFT: input methods -->
+    <div>
+      <div class="card">
+        <h2>Ler pedido do cliente <small>IA</small></h2>
+        <div class="body">
+          <textarea id="rawOrder" placeholder="Cole aqui a mensagem do cliente. Ex: preciso de 5 mesas de reunião 1,80, 10 armários secretária e 3 mesas diretor 1,60"></textarea>
+          <div class="row-flex" style="margin-top:10px;">
+            <button class="btn btn-primary" id="btnInterpret">Interpretar pedido</button>
+            <span id="interpretStatus" class="small-note"></span>
+          </div>
+          <div class="small-note">A IA extrai os itens e quantidades do texto. Cada item extraído aparece abaixo para você confirmar o produto certo no catálogo.</div>
+        </div>
+      </div>
+
+      <div style="height:16px;"></div>
+
+      <div class="card">
+        <h2>Ler planta de projeto (PDF) <small>IA</small></h2>
+        <div class="body">
+          <input type="file" id="plantaFile" accept="application/pdf" style="width:100%;font-size:12.5px;">
+          <div class="row-flex" style="margin-top:10px;">
+            <button class="btn btn-primary" id="btnPlanta">Analisar planta</button>
+            <span id="plantaStatus" class="small-note"></span>
+          </div>
+          <div class="small-note">A IA lê o PDF do projeto, identifica os ambientes e a mobília indicada, e sugere quantidades por item. <b>Quantidades de plantas sem legenda são uma estimativa</b> — sempre confira antes de fechar o orçamento.</div>
+        </div>
+      </div>
+
+      <div style="height:16px;"></div>
+
+      <div class="card">
+        <h2>Buscar item manualmente</h2>
+        <div class="body">
+          <input type="text" id="searchBox" placeholder="Digite nome, código ou medida (ex: mesa diretor 1,60)">
+          <div class="results" id="searchResults"></div>
+        </div>
+      </div>
+
+      <div style="height:16px;"></div>
+
+      <div class="card" id="pendingCard" style="display:none;">
+        <h2>Itens não identificados</h2>
+        <div class="body">
+          <div class="pending" id="pendingList"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT: quote -->
+    <div class="card">
+      <h2>
+        Orçamento
+        <small>Preço base da tabela (sem margem/frete)</small>
+      </h2>
+      <div class="body">
+        <div id="metaFields" class="row-flex" style="margin-bottom:10px;">
+          <input type="text" id="clienteNome" placeholder="Nome do cliente / projeto" style="flex:1;">
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>Item</th>
+              <th>Linha</th>
+              <th style="text-align:center;">Qtd</th>
+              <th style="text-align:right;">Unit.</th>
+              <th style="text-align:right;">Total</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="quoteBody">
+            <tr><td colspan="6" class="empty">Nenhum item adicionado ainda. Busque ou cole um pedido ao lado.</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="totals">
+        <div class="line"><span>Subtotal produtos (preço base)</span><span id="tSub">R$ 0,00</span></div>
+        <div class="line">
+          <span>Margem (<input type="text" id="margemPct" value="0" style="width:38px;text-align:center;padding:2px 4px;border:1px solid var(--line);border-radius:2px;">%)</span>
+          <span id="tMargem">R$ 0,00</span>
+        </div>
+        <div class="line">
+          <span>Montagem (<input type="text" id="montPct" value="0" style="width:38px;text-align:center;padding:2px 4px;border:1px solid var(--line);border-radius:2px;">%)</span>
+          <span id="tMont">R$ 0,00</span>
+        </div>
+        <div class="line">
+          <span>Frete / Entrega (R$ <input type="text" id="freteVal" value="0" style="width:64px;text-align:center;padding:2px 4px;border:1px solid var(--line);border-radius:2px;">)</span>
+          <span id="tFrete">R$ 0,00</span>
+        </div>
+        <div class="line grand"><span>Total</span><span class="v" id="tTotal">R$ 0,00</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div style="height:16px;"></div>
+
+  <div class="card" id="reviewCard" style="display:none;">
+    <h2>
+      Revisar itens extraídos
+      <small id="reviewSourceLabel"></small>
+    </h2>
+    <div class="body">
+      <div class="small-note" style="margin-bottom:10px;">Confira o produto casado e a quantidade de cada item antes de adicionar ao orçamento. Desmarque o que não fizer sentido.</div>
+      <div id="reviewList"></div>
+      <div class="row-flex" style="margin-top:14px;">
+        <button class="btn btn-primary" id="btnConfirmReview">Adicionar selecionados ao orçamento</button>
+        <button class="btn btn-ghost" id="btnCancelReview">Cancelar</button>
+        <span id="reviewSummary" class="small-note"></span>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<footer class="actionbar">
+  <button class="btn btn-ghost" id="btnClear">Limpar orçamento</button>
+  <button class="btn btn-ghost" id="btnCsv">Exportar CSV</button>
+  <button class="btn btn-primary" id="btnPrint">Imprimir / PDF</button>
+</footer>
+
+<script>
+const CATALOG = [{"codigo": "13548", "produto": "Armario New Perola I", "linha": "PEROLA", "larg": 0.8, "prof": 0.4, "alt": 1.8, "preco_base": 627.01, "preco_final": 791.68}, {"codigo": "13566", "produto": "Armario New Perola II", "linha": "PEROLA", "larg": 0.8, "prof": 0.4, "alt": 1.8, "preco_base": 651.11, "preco_final": 822.1}, {"codigo": "13583", "produto": "Armario New Perola III", "linha": "PEROLA", "larg": 0.8, "prof": 0.4, "alt": 1.8, "preco_base": 654.13, "preco_final": 825.92}, {"codigo": "8573", "produto": "Mesa Auxiliar Apoio 0,80 PE40 Perola", "linha": "PEROLA", "larg": 0.8, "prof": 0.45, "alt": 0.75, "preco_base": 299.46, "preco_final": 378.11}, {"codigo": "8574", "produto": "Mesa Auxiliar Apoio 1,00 PE40 Perola", "linha": "PEROLA", "larg": 1, "prof": 0.45, "alt": 0.75, "preco_base": 336.3, "preco_final": 424.62}, {"codigo": "8577", "produto": "Mesa Apoio 0,80 Gavet 4 Gav Perola", "linha": "PEROLA", "larg": 0.8, "prof": 0.45, "alt": 0.75, "preco_base": 765.12, "preco_final": 966.06}, {"codigo": "8578", "produto": "Mesa Apoio 1,00 Gavet 4 Gav Perola", "linha": "PEROLA", "larg": 1, "prof": 0.45, "alt": 0.75, "preco_base": 796.01, "preco_final": 1005.06}, {"codigo": "8677", "produto": "Mesa 1,50 X 0,70 Pes Fac Tampo Perola", "linha": "PEROLA", "larg": 1.5, "prof": 0.7, "alt": 0.75, "preco_base": 884.32, "preco_final": 1116.57}, {"codigo": "8678", "produto": "Mesa 2,00 X 0,80 Pes Fac Tampo Perola", "linha": "PEROLA", "larg": 2, "prof": 0.8, "alt": 0.75, "preco_base": 1053.43, "preco_final": 1330.08}, {"codigo": "13492", "produto": "Mesa 1,50 Perola De Ipanema PE40", "linha": "PEROLA", "larg": 1.5, "prof": 0.7, "alt": 0.75, "preco_base": 832.24, "preco_final": 1050.81}, {"codigo": "13482", "produto": "Mesa 1,80 Perola De Ipanema PE40", "linha": "PEROLA", "larg": 1.8, "prof": 0.7, "alt": 0.75, "preco_base": 924.67, "preco_final": 1167.51}, {"codigo": "13773", "produto": "Mesa Reta 1,50 Pé Painel Perola", "linha": "PEROLA", "larg": 1.5, "prof": 0.7, "alt": 0.75, "preco_base": 623.05, "preco_final": 786.68}, {"codigo": "12804", "produto": "Mesa Reta 1,80 Pé Painel Perola", "linha": "PEROLA", "larg": 1.8, "prof": 0.7, "alt": 0.75, "preco_base": 762.29, "preco_final": 962.49}, {"codigo": "14377", "produto": "Mesa Reta 1,20 Perola Pé Aço", "linha": "PEROLA", "larg": 1.2, "prof": 0.6, "alt": 0.75, "preco_base": 582.12, "preco_final": 734.99}, {"codigo": "14387", "produto": "Mesa Reta 1,37 Perola Pé Aço", "linha": "PEROLA", "larg": 1.37, "prof": 0.6, "alt": 0.75, "preco_base": 618.64, "preco_final": 781.11}, {"codigo": "13768", "produto": "Mesa Reta 1,50 Perola Pé Aço", "linha": "PEROLA", "larg": 1.5, "prof": 0.7, "alt": 0.75, "preco_base": 712.22, "preco_final": 899.26}, {"codigo": "13769", "produto": "Mesa Reta 1,80 Perola Pé Aço", "linha": "PEROLA", "larg": 1.8, "prof": 0.7, "alt": 0.75, "preco_base": 841.61, "preco_final": 1062.64}, {"codigo": "8093", "produto": "Mesa L 1,80 X 1,50 C/ Armário Perola", "linha": "PEROLA", "larg": 1.8, "prof": 1.5, "alt": 0.75, "preco_base": 1357.7, "preco_final": 1714.27}, {"codigo": "9352", "produto": "Mesa L 1,80 X 1,50 C/ Armário Perola (Lado Esq)", "linha": "PEROLA", "larg": 1.8, "prof": 1.5, "alt": 0.75, "preco_base": 1357.7, "preco_final": 1714.27}, {"codigo": "11943", "produto": "Mesa 1,92 X 0,70 C/ Gaveteiro Perola", "linha": "PEROLA", "larg": 1.92, "prof": 0.7, "alt": 0.75, "preco_base": 1176.66, "preco_final": 1485.68}, {"codigo": "9373", "produto": "Mesa L 1,80 X 1,50 C/ Arm/Gav Perola Pé Aço", "linha": "PEROLA", "larg": 1.8, "prof": 1.5, "alt": 0.75, "preco_base": 1430.58, "preco_final": 1806.29}, {"codigo": "9461", "produto": "Mesa L 1,80 x1,50 C/ Arm/Gav Per Pé Aço (Lado Esq)", "linha": "PEROLA", "larg": 1.8, "prof": 1.5, "alt": 0.75, "preco_base": 1430.58, "preco_final": 1806.29}, {"codigo": "8584", "produto": "Mesa Reun Redonda 1,10 PP 'X' Perola", "linha": "PEROLA", "larg": 1.1, "prof": 1.1, "alt": 0.75, "preco_base": 641.81, "preco_final": 810.37}, {"codigo": "8585", "produto": "Mesa Reunião Retangular 1,80 PE40 Perola", "linha": "PEROLA", "larg": 1.8, "prof": 0.9, "alt": 0.75, "preco_base": 881.37, "preco_final": 1112.84}, {"codigo": "8586", "produto": "Mesa Reunião Retangular 2,00 PE40 Perola", "linha": "PEROLA", "larg": 2, "prof": 0.9, "alt": 0.75, "preco_base": 940.72, "preco_final": 1187.78}, {"codigo": "13616", "produto": "Mesa Reun Retang 2,00 Perola Tomada", "linha": "PEROLA", "larg": 2, "prof": 0.9, "alt": 0.75, "preco_base": 1121.98, "preco_final": 1088.9}, {"codigo": "13618", "produto": "Mesa Reun Retang 2,40 Perola Tomada", "linha": "PEROLA", "larg": 2.4, "prof": 0.9, "alt": 0.75, "preco_base": 1237.79, "preco_final": 1189.55}, {"codigo": "13593", "produto": "Mesa Reun Boat 2,00 Perola Tomada", "linha": "PEROLA", "larg": 2, "prof": 0.9, "alt": 0.75, "preco_base": 1150.33, "preco_final": 1116.14}, {"codigo": "13606", "produto": "Mesa Reun Boat 2,40 Perola Tomada", "linha": "PEROLA", "larg": 2.4, "prof": 0.9, "alt": 0.75, "preco_base": 1273.52, "preco_final": 1223.83}, {"codigo": "6141", "produto": "Armario Diretor Turmalina", "linha": "TURMALINA", "larg": 0.81, "prof": 0.41, "alt": 1.61, "preco_base": 731.14, "preco_final": 923.16}, {"codigo": "5692", "produto": "Armario Diretor 1 Porta Turmalina", "linha": "TURMALINA", "larg": 0.42, "prof": 0.41, "alt": 1.61, "preco_base": 478.43, "preco_final": 604.08}, {"codigo": "6229", "produto": "Armario Executivo Turmalina", "linha": "TURMALINA", "larg": 0.81, "prof": 0.41, "alt": 1.61, "preco_base": 632.42, "preco_final": 798.51}, {"codigo": "6226", "produto": "Armario Executivo 1 Porta Turmalina", "linha": "TURMALINA", "larg": 0.42, "prof": 0.41, "alt": 1.61, "preco_base": 436.95, "preco_final": 551.7}, {"codigo": "6144", "produto": "Armario Secretária Turmalina", "linha": "TURMALINA", "larg": 0.81, "prof": 0.41, "alt": 0.75, "preco_base": 417.44, "preco_final": 527.07}, {"codigo": "6199", "produto": "Credenza 2 Porta Correr Turmalina", "linha": "TURMALINA", "larg": 1.3, "prof": 0.41, "alt": 0.75, "preco_base": 808.69, "preco_final": 1021.07}, {"codigo": "6210", "produto": "Armario Diretor 1 Porta Correr Turmalina", "linha": "TURMALINA", "larg": 1.3, "prof": 0.41, "alt": 1.61, "preco_base": 1036.42, "preco_final": 1308.61}, {"codigo": "6146", "produto": "Arquivo Pasta Susp Turmalina", "linha": "TURMALINA", "larg": 0.5, "prof": 0.46, "alt": 1.61, "preco_base": 702.1, "preco_final": 886.49}, {"codigo": "6150", "produto": "Gaveterio Fixo 1 Gav Turmalina", "linha": "TURMALINA", "larg": 0.38, "prof": 0.41, "alt": 0.2, "preco_base": 108.46, "preco_final": 136.95}, {"codigo": "6148", "produto": "Gaveteiro Volante 3 Gav Turmalina", "linha": "TURMALINA", "larg": 0.42, "prof": 0.41, "alt": 0.66, "preco_base": 391.05, "preco_final": 493.75}, {"codigo": "5684", "produto": "Mesa Recepção 1,00 Pé Pain Turmalina", "linha": "TURMALINA", "larg": 1, "prof": 0.6, "alt": 0.75, "preco_base": 335.85, "preco_final": 424.05}, {"codigo": "5686", "produto": "Mesa Secretária 1,20 Pé Pain Turmalina", "linha": "TURMALINA", "larg": 1.2, "prof": 0.6, "alt": 0.75, "preco_base": 367.52, "preco_final": 464.04}, {"codigo": "5688", "produto": "Mesa Gerente 1,37 Pé Pain Turmalina", "linha": "TURMALINA", "larg": 1.37, "prof": 0.6, "alt": 0.75, "preco_base": 380.67, "preco_final": 480.64}, {"codigo": "5690", "produto": "Mesa Diretor 1,60 Pé Pain Turmalina", "linha": "TURMALINA", "larg": 1.6, "prof": 0.6, "alt": 0.75, "preco_base": 434.9, "preco_final": 549.12}, {"codigo": "5680", "produto": "Mesa Auxiliar Apoio 0,80 Pé Pain Turmalina", "linha": "TURMALINA", "larg": 0.8, "prof": 0.45, "alt": 0.75, "preco_base": 232.8, "preco_final": 293.94}, {"codigo": "5682", "produto": "Mesa Auxiliar Apoio 1,00 Pé Pain Turmalina", "linha": "TURMALINA", "larg": 1, "prof": 0.45, "alt": 0.75, "preco_base": 265.33, "preco_final": 335.01}, {"codigo": "8408", "produto": "Estante Aço Ônix 20x20 5 Prateleiras", "linha": "ÔNIX", "larg": 0.8, "prof": 0.39, "alt": 1.75, "preco_base": 756.16, "preco_final": 954.75}, {"codigo": "8397", "produto": "Estante Aço Ônix 30x30 5 Prateleiras", "linha": "ÔNIX", "larg": 0.805, "prof": 0.39, "alt": 1.75, "preco_base": 849.5, "preco_final": 1072.6}, {"codigo": "7923", "produto": "Nicho Para Estante De Aço", "linha": "ÔNIX", "larg": 0.37, "prof": 0.38, "alt": 0.36, "preco_base": 103.8, "preco_final": 131.06}, {"codigo": "8625", "produto": "Mesa Recepção 1,00 Pé Aço Onix", "linha": "ÔNIX", "larg": 1, "prof": 0.6, "alt": 0.75, "preco_base": 434.4, "preco_final": 548.48}, {"codigo": "8626", "produto": "Mesa Secretária 1,20 Pé Aço Onix", "linha": "ÔNIX", "larg": 1.2, "prof": 0.6, "alt": 0.75, "preco_base": 458.97, "preco_final": 579.51}, {"codigo": "8627", "produto": "Mesa Gerente 1,37x0,60 Pé Aço Onix", "linha": "ÔNIX", "larg": 1.37, "prof": 0.6, "alt": 0.75, "preco_base": 469.41, "preco_final": 592.69}, {"codigo": "8628", "produto": "Mesa Diretor 1,60x0,60 Pé Aço Onix", "linha": "ÔNIX", "larg": 1.6, "prof": 0.6, "alt": 0.75, "preco_base": 492.5, "preco_final": 621.84}, {"codigo": "8629", "produto": "Mesa Auxiliar Apoio 0,80 Pé Aço Onix", "linha": "ÔNIX", "larg": 0.8, "prof": 0.45, "alt": 0.75, "preco_base": 219.32, "preco_final": 276.91}, {"codigo": "8630", "produto": "Mesa Auxiliar Apoio 1,00 Pé Aço Onix", "linha": "ÔNIX", "larg": 1, "prof": 0.45, "alt": 0.75, "preco_base": 252.16, "preco_final": 318.38}, {"codigo": "13770", "produto": "Mesa Plataforma 1,00 Onix", "linha": "ÔNIX", "larg": 1, "prof": 1.2, "alt": 0.75, "preco_base": 743.46, "preco_final": 938.71}, {"codigo": "13771", "produto": "Mesa Plataforma 1,20 Onix", "linha": "ÔNIX", "larg": 1.2, "prof": 1.2, "alt": 0.75, "preco_base": 801.57, "preco_final": 1012.08}, {"codigo": "13772", "produto": "Mesa Plataforma 1,37 Onix", "linha": "ÔNIX", "larg": 1.37, "prof": 1.2, "alt": 0.75, "preco_base": 922.86, "preco_final": 1165.23}, {"codigo": "11891", "produto": "Mesa Plataf 1,00 Inicio Passa Fio Onix", "linha": "ÔNIX", "larg": 1, "prof": 1.2, "alt": 0.75, "preco_base": 585.9, "preco_final": 739.78}, {"codigo": "11901", "produto": "Mesa Plataf 1,00 Meio Passa Fio Onix", "linha": "ÔNIX", "larg": 1, "prof": 1.2, "alt": 0.75, "preco_base": 509.84, "preco_final": 643.74}, {"codigo": "11857", "produto": "Mesa Plataf 1,00 Fim Passa Fio Onix", "linha": "ÔNIX", "larg": 1, "prof": 1.2, "alt": 0.75, "preco_base": 706.29, "preco_final": 891.78}, {"codigo": "12262", "produto": "Mesa Plataf 1,20 Inicio Passa Fio Onix", "linha": "ÔNIX", "larg": 1.2, "prof": 1.2, "alt": 0.75, "preco_base": 648.64, "preco_final": 818.99}, {"codigo": "12283", "produto": "Mesa Plataf 1,20 Meio Passa Fio Onix", "linha": "ÔNIX", "larg": 1.2, "prof": 1.2, "alt": 0.75, "preco_base": 569.76, "preco_final": 719.4}, {"codigo": "12137", "produto": "Mesa Plataf 1,20 Fim Passa Fio Onix", "linha": "ÔNIX", "larg": 1.2, "prof": 1.2, "alt": 0.75, "preco_base": 755.36, "preco_final": 953.74}, {"codigo": "12266", "produto": "Mesa Plataf 1,37 Inicio Passa Fio Onix", "linha": "ÔNIX", "larg": 1.37, "prof": 1.2, "alt": 0.75, "preco_base": 685.23, "preco_final": 865.19}, {"codigo": "12229", "produto": "Mesa Plataf 1,37 Meio Passa Fio Onix", "linha": "ÔNIX", "larg": 1.37, "prof": 1.2, "alt": 0.75, "preco_base": 607.51, "preco_final": 767.06}, {"codigo": "12141", "produto": "Mesa Plataf 1,37 Fim Passa Fio Onix", "linha": "ÔNIX", "larg": 1.37, "prof": 1.2, "alt": 0.75, "preco_base": 876.16, "preco_final": 1106.27}, {"codigo": "13622", "produto": "Mesa Reunião 2,00 Onix Tomada", "linha": "ÔNIX", "larg": 2, "prof": 0.9, "alt": 0.75, "preco_base": 954.94, "preco_final": 1205.73}, {"codigo": "13631", "produto": "Mesa Reunião 2,40 Onix Tomada", "linha": "ÔNIX", "larg": 2.4, "prof": 0.9, "alt": 0.75, "preco_base": 1027.99, "preco_final": 1297.97}, {"codigo": "13691", "produto": "Mesa Reunião Boat 2,00 Onix Tomada", "linha": "ÔNIX", "larg": 2, "prof": 0.9, "alt": 0.75, "preco_base": 971.33, "preco_final": 1226.42}, {"codigo": "13696", "produto": "Mesa Reunião Boat 2,40 Onix Tomada", "linha": "ÔNIX", "larg": 2.4, "prof": 0.9, "alt": 0.75, "preco_base": 1048.59, "preco_final": 1323.98}, {"codigo": "12288", "produto": "Mesa Reunião Redonda Onix", "linha": "ÔNIX", "larg": 1.1, "prof": 1.1, "alt": 0.75, "preco_base": 518.8, "preco_final": 655.05}, {"codigo": "12289", "produto": "Mesa Reunião Redonda Onix", "linha": "ÔNIX", "larg": 1.2, "prof": 1.2, "alt": 0.75, "preco_base": 551.91, "preco_final": 696.85}, {"codigo": "12257", "produto": "Mesa Recepção 0,90 Define C/ Saia ( Pé Aço )", "linha": "ÔNIX", "larg": 0.9, "prof": 0.45, "alt": 0.75, "preco_base": 262.98, "preco_final": 332.04}, {"codigo": "12220", "produto": "Mesa Secretária 1,20 Define C/ Saia ( Pé Aço )", "linha": "ÔNIX", "larg": 1.2, "prof": 0.45, "alt": 0.75, "preco_base": 297.57, "preco_final": 375.72}, {"codigo": "9657", "produto": "Mesa Estudo 0,70 x 0,50 Define ( Pé Aço )", "linha": "ÔNIX", "larg": 0.7, "prof": 0.5, "alt": 0.74, "preco_base": 197.28, "preco_final": 249.09}, {"codigo": "14633", "produto": "Gaveteiro Fixo 2 Gavetas Onix C/ Costa", "linha": "ÔNIX", "larg": 0.37, "prof": 0.41, "alt": 0.2, "preco_base": 199.87, "preco_final": 252.36}, {"codigo": "14634", "produto": "Gaveteiro Fixo 3 Gavetas Onix C/ Costa", "linha": "ÔNIX", "larg": 0.37, "prof": 0.41, "alt": 0.34, "preco_base": 274.18, "preco_final": 346.19}, {"codigo": "3474", "produto": "Armário Diretor 2,10 Diamante", "linha": "DIAMANTE", "larg": 0.81, "prof": 0.41, "alt": 2.1, "preco_base": 1253.89, "preco_final": 1583.2}, {"codigo": "4051", "produto": "Armário Diretor 2,10 Diamante", "linha": "DIAMANTE", "larg": 0.81, "prof": 0.46, "alt": 2.1, "preco_base": 1508.62, "preco_final": 1904.83}, {"codigo": "1141", "produto": "Armário Diretor Diamante", "linha": "DIAMANTE", "larg": 0.81, "prof": 0.41, "alt": 1.61, "preco_base": 1028.83, "preco_final": 1299.03}, {"codigo": "4053", "produto": "Armário Diretor Diamante", "linha": "DIAMANTE", "larg": 0.81, "prof": 0.46, "alt": 1.61, "preco_base": 1150.57, "preco_final": 1452.74}, {"codigo": "1142", "produto": "Armário Executivo Dimante", "linha": "DIAMANTE", "larg": 0.81, "prof": 0.41, "alt": 1.61, "preco_base": 948.46, "preco_final": 1197.55}, {"codigo": "4055", "produto": "Armário Executivo Dimante", "linha": "DIAMANTE", "larg": 0.81, "prof": 0.46, "alt": 1.61, "preco_base": 1024.63, "preco_final": 1293.72}, {"codigo": "2277", "produto": "Armário Estante Diamante", "linha": "DIAMANTE", "larg": 0.81, "prof": 0.41, "alt": 1.61, "preco_base": 736.46, "preco_final": 929.88}, {"codigo": "4057", "produto": "Armário Estante Diamante", "linha": "DIAMANTE", "larg": 0.81, "prof": 0.46, "alt": 1.61, "preco_base": 792.54, "preco_final": 1000.68}, {"codigo": "1227", "produto": "Amário Diretor 1 Porta Diamante", "linha": "DIAMANTE", "larg": 0.42, "prof": 0.41, "alt": 1.61, "preco_base": 643.02, "preco_final": 811.9}, {"codigo": "4061", "produto": "Amário Diretor 1 Porta Diamante", "linha": "DIAMANTE", "larg": 0.42, "prof": 0.46, "alt": 1.61, "preco_base": 692.58, "preco_final": 874.47}, {"codigo": "1228", "produto": "Armaário Executivo 1 Porta Diamante", "linha": "DIAMANTE", "larg": 0.42, "prof": 0.41, "alt": 1.61, "preco_base": 605.95, "preco_final": 765.09}, {"codigo": "4063", "produto": "Armaário Executivo 1 Porta Diamante", "linha": "DIAMANTE", "larg": 0.42, "prof": 0.46, "alt": 1.61, "preco_base": 616.35, "preco_final": 778.22}, {"codigo": "1229", "produto": "Armário Estante 4 Gav Diamante", "linha": "DIAMANTE", "larg": 0.42, "prof": 0.41, "alt": 1.61, "preco_base": 908.12, "preco_final": 1146.61}, {"codigo": "4067", "produto": "Armário Estante 4 Gav Diamante", "linha": "DIAMANTE", "larg": 0.42, "prof": 0.46, "alt": 1.61, "preco_base": 917.96, "preco_final": 1159.04}, {"codigo": "1143", "produto": "Credenza 2 Pasta Susp Diamante", "linha": "DIAMANTE", "larg": 1.3, "prof": 0.46, "alt": 0.75, "preco_base": 1204.34, "preco_final": 1520.63}, {"codigo": "2239", "produto": "Credenza 4 Gavetas Diamante", "linha": "DIAMANTE", "larg": 1.3, "prof": 0.46, "alt": 0.75, "preco_base": 1264.55, "preco_final": 1596.65}, {"codigo": "3091", "produto": "Credenza 3 Portas Diamante", "linha": "DIAMANTE", "larg": 1.3, "prof": 0.46, "alt": 0.75, "preco_base": 980.61, "preco_final": 1238.15}, {"codigo": "1144", "produto": "Armário Secretária Diamante", "linha": "DIAMANTE", "larg": 0.81, "prof": 0.41, "alt": 0.75, "preco_base": 546.56, "preco_final": 690.11}, {"codigo": "4059", "produto": "Armário Secretária Diamante", "linha": "DIAMANTE", "larg": 0.81, "prof": 0.46, "alt": 0.75, "preco_base": 619.37, "preco_final": 782.03}, {"codigo": "3046", "produto": "Armário Secretária 1 Porta Diamante", "linha": "DIAMANTE", "larg": 0.42, "prof": 0.41, "alt": 0.75, "preco_base": 353.66, "preco_final": 446.55}, {"codigo": "4065", "produto": "Armário Secretária 1 Porta Diamante", "linha": "DIAMANTE", "larg": 0.42, "prof": 0.46, "alt": 0.75, "preco_base": 372.84, "preco_final": 470.76}, {"codigo": "3564", "produto": "Armário Secretária 4 Portas Diamante", "linha": "DIAMANTE", "larg": 1.6, "prof": 0.41, "alt": 0.75, "preco_base": 996.68, "preco_final": 1258.43}, {"codigo": "1145", "produto": "Arquivo Porta/Pasta Susp Diamante", "linha": "DIAMANTE", "larg": 0.5, "prof": 0.46, "alt": 1.61, "preco_base": 911.68, "preco_final": 1151.11}, {"codigo": "1146", "produto": "Arquivo Pasta Susp Diamante", "linha": "DIAMANTE", "larg": 0.5, "prof": 0.46, "alt": 1.61, "preco_base": 1038.2, "preco_final": 1310.86}, {"codigo": "4139", "produto": "Arquivo Pasta Susp Sem Vão Diamante", "linha": "DIAMANTE", "larg": 0.5, "prof": 0.46, "alt": 1.29, "preco_base": 1038.19, "preco_final": 1310.85}, {"codigo": "1147", "produto": "Arquivo Pasta Susp Baixo Diamante", "linha": "DIAMANTE", "larg": 0.5, "prof": 0.46, "alt": 0.69, "preco_base": 538.53, "preco_final": 679.96}, {"codigo": "1165", "produto": "Gaveteiro Volante 4 Gav Diamante", "linha": "DIAMANTE", "larg": 0.5, "prof": 0.46, "alt": 0.65, "preco_base": 643.02, "preco_final": 811.9}, {"codigo": "1156", "produto": "Gavet Vol 2 Gav/Pasta Susp Diamante", "linha": "DIAMANTE", "larg": 0.5, "prof": 0.46, "alt": 0.65, "preco_base": 594.79, "preco_final": 751.0}, {"codigo": "4905", "produto": "Suporte Pasta Susp Armário Diamante", "linha": "DIAMANTE", "larg": null, "prof": null, "alt": null, "preco_base": 137.42, "preco_final": 173.51}, {"codigo": "2168", "produto": "Gaveteiro Junção 4 Gav 50x60 Diamante", "linha": "DIAMANTE", "larg": null, "prof": 0.6, "alt": 0.75, "preco_base": 696.12, "preco_final": 878.94}, {"codigo": "2169", "produto": "Gaveteiro Junção 4 Gav 50x70 Diamante", "linha": "DIAMANTE", "larg": 0.5, "prof": 0.7, "alt": 0.75, "preco_base": 748.91, "preco_final": 945.6}, {"codigo": "3119", "produto": "Gaveteiro Junção Pasta 50x60 Diamante", "linha": "DIAMANTE", "larg": null, "prof": 0.6, "alt": 0.75, "preco_base": 665.84, "preco_final": 840.7}, {"codigo": "3120", "produto": "Gaveteiro Junção Pasta 50x70 Diamante", "linha": "DIAMANTE", "larg": 0.5, "prof": 0.7, "alt": 0.75, "preco_base": 686.52, "preco_final": 866.82}, {"codigo": "1152", "produto": "Gaveteiro Volante 3 Gav/Vão Diamante", "linha": "DIAMANTE", "larg": 0.41, "prof": 0.39, "alt": 0.62, "preco_base": 424.61, "preco_final": 536.12}, {"codigo": "1155", "produto": "Gaveteiro Volante 5 Gav Diamante", "linha": "DIAMANTE", "larg": 0.41, "prof": 0.39, "alt": 0.62, "preco_base": 471.1, "preco_final": 594.83}, {"codigo": "2952", "produto": "Mesa Presidente Diamante", "linha": "DIAMANTE", "larg": 1.8, "prof": 0.7, "alt": 0.75, "preco_base": 748.19, "preco_final": 944.69}, {"codigo": "1166", "produto": "Mesa Diretor Diamante", "linha": "DIAMANTE", "larg": 1.6, "prof": 0.7, "alt": 0.75, "preco_base": 657.37, "preco_final": 830.01}, {"codigo": "1167", "produto": "Mesa Gerente Diamante", "linha": "DIAMANTE", "larg": 1.37, "prof": 0.7, "alt": 0.75, "preco_base": 609.23, "preco_final": 769.23}, {"codigo": "1168", "produto": "Mesa Secretária Diamante", "linha": "DIAMANTE", "larg": 1.2, "prof": 0.6, "alt": 0.75, "preco_base": 532.56, "preco_final": 672.43}, {"codigo": "1169", "produto": "Mesa Recepção Diamante", "linha": "DIAMANTE", "larg": 1, "prof": 0.6, "alt": 0.75, "preco_base": 492.93, "preco_final": 622.38}, {"codigo": "1271", "produto": "Mesa Auxiliar 80x60 Diamante", "linha": "DIAMANTE", "larg": 0.8, "prof": 0.6, "alt": 0.75, "preco_base": 474.09, "preco_final": 598.59}, {"codigo": "3112", "produto": "Mesa Auxiliar 80x70 Diamante", "linha": "DIAMANTE", "larg": 0.8, "prof": 0.7, "alt": 0.75, "preco_base": 487.97, "preco_final": 616.12}, {"codigo": "2951", "produto": "Mesa Presidente Diamante Pé Painel", "linha": "DIAMANTE", "larg": 1.8, "prof": 0.7, "alt": 0.75, "preco_base": 610.87, "preco_final": 771.3}, {"codigo": "1338", "produto": "Mesa Diretor Diamante Pé Painel", "linha": "DIAMANTE", "larg": 1.6, "prof": 0.7, "alt": 0.75, "preco_base": 570.68, "preco_final": 720.55}, {"codigo": "1339", "produto": "Mesa Gerente Diamante Pé Painel", "linha": "DIAMANTE", "larg": 1.37, "prof": 0.7, "alt": 0.75, "preco_base": 498.34, "preco_final": 629.22}, {"codigo": "1340", "produto": "Mesa Secretária Diamante Pé Painel", "linha": "DIAMANTE", "larg": 1.2, "prof": 0.6, "alt": 0.75, "preco_base": 417.96, "preco_final": 527.73}, {"codigo": "1341", "produto": "Mesa Recepção Diamante Pé Painel", "linha": "DIAMANTE", "larg": 1, "prof": 0.6, "alt": 0.75, "preco_base": 385.81, "preco_final": 487.13}, {"codigo": "1342", "produto": "Mesa Auxiliar 80x60 Diamante Pé Painel", "linha": "DIAMANTE", "larg": 0.8, "prof": 0.6, "alt": 0.75, "preco_base": 345.63, "preco_final": 436.4}, {"codigo": "3113", "produto": "Mesa Auxiliar 80x70 Diamante Pé Painel", "linha": "DIAMANTE", "larg": 0.8, "prof": 0.7, "alt": 0.75, "preco_base": 377.78, "preco_final": 476.99}, {"codigo": "2238", "produto": "Mesa Aux Apoio Diamante Pé Painel", "linha": "DIAMANTE", "larg": 0.8, "prof": 0.5, "alt": 0.75, "preco_base": 257.21, "preco_final": 324.75}, {"codigo": "2237", "produto": "Mesa Aux Apoio Diamante Pé Painel", "linha": "DIAMANTE", "larg": 1, "prof": 0.5, "alt": 0.75, "preco_base": 289.36, "preco_final": 365.35}, {"codigo": "2200", "produto": "Mesa Diretor Gavet Pedestal 4 Gav Diam", "linha": "DIAMANTE", "larg": 1.6, "prof": 0.7, "alt": 0.75, "preco_base": 1160.89, "preco_final": 1465.77}, {"codigo": "2201", "produto": "Mesa Gerente Gavet Pedestal 4 Gav Diam", "linha": "DIAMANTE", "larg": 1.37, "prof": 0.7, "alt": 0.75, "preco_base": 1105.1, "preco_final": 1395.33}, {"codigo": "2176", "produto": "Mesa Diretor Gavet Pedestal 4 Gav Diam Pé Painel", "linha": "DIAMANTE", "larg": 1.6, "prof": 0.7, "alt": 0.75, "preco_base": 1117.25, "preco_final": 1410.67}, {"codigo": "2162", "produto": "Mesa Gerente Gavet Pedestal 4 Gav Diam Pé Painel", "linha": "DIAMANTE", "larg": 1.37, "prof": 0.7, "alt": 0.75, "preco_base": 1065.81, "preco_final": 1345.72}, {"codigo": "4813", "produto": "Mesa Diretor Gavet Pedestal 2 Gav/Past Diam", "linha": "DIAMANTE", "larg": 1.6, "prof": 0.7, "alt": 0.75, "preco_base": 1143.61, "preco_final": 1443.96}, {"codigo": "4815", "produto": "Mesa Gerente Gavet Pedestal 2 Gav/Past Diam", "linha": "DIAMANTE", "larg": 1.37, "prof": 0.7, "alt": 0.75, "preco_base": 1087.43, "preco_final": 1373.01}, {"codigo": "4816", "produto": "Mesa Diretor Gavet Pedest 2 Gav/Past Diam Pé Pain", "linha": "DIAMANTE", "larg": 1.6, "prof": 0.7, "alt": 0.75, "preco_base": 1093.14, "preco_final": 1380.23}, {"codigo": "4818", "produto": "Mesa Gerente Gavet Pedest 2 Gav/Past Diam Pé Pain", "linha": "DIAMANTE", "larg": 1.37, "prof": 0.7, "alt": 0.75, "preco_base": 1044.91, "preco_final": 1319.33}, {"codigo": "3574", "produto": "Mesa Essencial Diamante", "linha": "DIAMANTE", "larg": 1.2, "prof": 0.45, "alt": 0.75, "preco_base": 524.32, "preco_final": 662.02}, {"codigo": "275", "produto": "Mesa Reunião Redonda Diamante", "linha": "DIAMANTE", "larg": 0.9, "prof": 0.9, "alt": 0.75, "preco_base": 485.5, "preco_final": 613.01}, {"codigo": "1170", "produto": "Mesa Reunião Redonda Diamante", "linha": "DIAMANTE", "larg": 1.1, "prof": 1.1, "alt": 0.75, "preco_base": 552.26, "preco_final": 697.3}, {"codigo": "1171", "produto": "Mesa Reunião Redonda Diamante", "linha": "DIAMANTE", "larg": 1.2, "prof": 1.2, "alt": 0.75, "preco_base": 592.91, "preco_final": 748.62}, {"codigo": "3483", "produto": "Mesa Reunião Redonda Diamante", "linha": "DIAMANTE", "larg": 1.37, "prof": 1.37, "alt": 0.75, "preco_base": 849.73, "preco_final": 1072.89}, {"codigo": "276", "produto": "Mesa Reunião Redonda Diam Pé Painel", "linha": "DIAMANTE", "larg": 0.9, "prof": 0.9, "alt": 0.75, "preco_base": 470.63, "preco_final": 594.23}, {"codigo": "2376", "produto": "Mesa Reunião Redonda Diam Pé Painel", "linha": "DIAMANTE", "larg": 1.1, "prof": 1.1, "alt": 0.75, "preco_base": 566.01, "preco_final": 714.66}, {"codigo": "2377", "produto": "Mesa Reunião Redonda Diam Pé Painel", "linha": "DIAMANTE", "larg": 1.2, "prof": 1.2, "alt": 0.75, "preco_base": 610.87, "preco_final": 771.3}, {"codigo": "3485", "produto": "Mesa Reunião Redonda Diam Pé Painel", "linha": "DIAMANTE", "larg": 1.37, "prof": 1.37, "alt": 0.75, "preco_base": 755.55, "preco_final": 953.98}, {"codigo": "184", "produto": "Mesa Reunião Retangular Diamante", "linha": "DIAMANTE", "larg": 1.8, "prof": 0.9, "alt": 0.75, "preco_base": 1319.83, "preco_final": 1666.45}, {"codigo": "1172", "produto": "Mesa Reunião Retangular Diamante", "linha": "DIAMANTE", "larg": 2, "prof": 1, "alt": 0.75, "preco_base": 1396.27, "preco_final": 1762.97}, {"codigo": "1173", "produto": "Mesa Reunião Retangular Diamante", "linha": "DIAMANTE", "larg": 2.4, "prof": 1, "alt": 0.75, "preco_base": 1487.11, "preco_final": 1877.67}, {"codigo": "1780", "produto": "Mesa Reunião Retangular Diamante", "linha": "DIAMANTE", "larg": 3, "prof": 1, "alt": 0.75, "preco_base": 1636.1, "preco_final": 2065.79}, {"codigo": "2989", "produto": "Mesa Reunião Retangular Diamante", "linha": "DIAMANTE", "larg": 3.5, "prof": 1, "alt": 0.75, "preco_base": 1759.17, "preco_final": 2221.18}, {"codigo": "850", "produto": "Mesa Reunião Retangular Diam Pé Painel", "linha": "DIAMANTE", "larg": 1.8, "prof": 0.9, "alt": 0.75, "preco_base": 755.55, "preco_final": 953.98}, {"codigo": "1352", "produto": "Mesa Reunião Retangular Diam Pé Painel", "linha": "DIAMANTE", "larg": 2, "prof": 1, "alt": 0.75, "preco_base": 835.93, "preco_final": 1055.47}, {"codigo": "1353", "produto": "Mesa Reunião Retangular Diam Pé Painel", "linha": "DIAMANTE", "larg": 2.4, "prof": 1, "alt": 0.75, "preco_base": 948.46, "preco_final": 1197.55}, {"codigo": "1781", "produto": "Mesa Reunião Retangular Diam Pé Painel", "linha": "DIAMANTE", "larg": 3, "prof": 1, "alt": 0.75, "preco_base": 1157.44, "preco_final": 1461.41}, {"codigo": "2990", "produto": "Mesa Reunião Retangular Diam Pé Painel", "linha": "DIAMANTE", "larg": 3.5, "prof": 1, "alt": 0.75, "preco_base": 1302.11, "preco_final": 1644.08}, {"codigo": "1610", "produto": "Mesa Reunião Oval Diamante", "linha": "DIAMANTE", "larg": 1.8, "prof": 0.9, "alt": 0.75, "preco_base": 1313.86, "preco_final": 1658.92}, {"codigo": "2123", "produto": "Mesa Reunião Oval Diamante", "linha": "DIAMANTE", "larg": 2, "prof": 1, "alt": 0.75, "preco_base": 1389.0, "preco_final": 1753.79}, {"codigo": "2125", "produto": "Mesa Reunião Oval Diamante", "linha": "DIAMANTE", "larg": 2.4, "prof": 1, "alt": 0.75, "preco_base": 1476.18, "preco_final": 1863.87}, {"codigo": "2303", "produto": "Mesa Reunião Oval Diamante", "linha": "DIAMANTE", "larg": 3, "prof": 1, "alt": 0.75, "preco_base": 1659.97, "preco_final": 2095.93}, {"codigo": "1061", "produto": "Mesa Reunião Oval Diamante", "linha": "DIAMANTE", "larg": 3.5, "prof": 1, "alt": 0.75, "preco_base": 1817.89, "preco_final": 2295.32}, {"codigo": "1844", "produto": "Mesa Reunião Oval Diam Pé Painel", "linha": "DIAMANTE", "larg": 1.8, "prof": 0.9, "alt": 0.75, "preco_base": 771.63, "preco_final": 974.28}, {"codigo": "2124", "produto": "Mesa Reunião Oval Diam Pé Painel", "linha": "DIAMANTE", "larg": 2, "prof": 1, "alt": 0.75, "preco_base": 852.0, "preco_final": 1075.76}, {"codigo": "2126", "produto": "Mesa Reunião Oval Diam Pé Painel", "linha": "DIAMANTE", "larg": 2.4, "prof": 1, "alt": 0.75, "preco_base": 964.54, "preco_final": 1217.85}, {"codigo": "2956", "produto": "Mesa Reunião Oval Diam Pé Painel", "linha": "DIAMANTE", "larg": 3, "prof": 1, "alt": 0.75, "preco_base": 1173.51, "preco_final": 1481.71}, {"codigo": "2991", "produto": "Mesa Reunião Oval Diam Pé Painel", "linha": "DIAMANTE", "larg": 3.5, "prof": 1, "alt": 0.75, "preco_base": 1318.19, "preco_final": 1664.38}, {"codigo": "1174", "produto": "Conexão Leque Diamante", "linha": "DIAMANTE", "larg": 0.7, "prof": 0.7, "alt": null, "preco_base": 157.54, "preco_final": 198.91}, {"codigo": "1175", "produto": "Conexão Leque Diamante", "linha": "DIAMANTE", "larg": 0.7, "prof": 0.6, "alt": null, "preco_base": 140.52, "preco_final": 177.43}, {"codigo": "1176", "produto": "Conexão Leque Diamante", "linha": "DIAMANTE", "larg": 0.6, "prof": 0.6, "alt": null, "preco_base": 131.06, "preco_final": 165.48}, {"codigo": "6115", "produto": "Pé Aço Conexão", "linha": "DIAMANTE", "larg": null, "prof": null, "alt": null, "preco_base": 75.43, "preco_final": 95.24}, {"codigo": "1177", "produto": "Conexão Quadrada Diamante", "linha": "DIAMANTE", "larg": 0.7, "prof": 0.7, "alt": null, "preco_base": 157.54, "preco_final": 198.91}, {"codigo": "1178", "produto": "Conexão Quadrada Diamante", "linha": "DIAMANTE", "larg": 0.7, "prof": 0.6, "alt": null, "preco_base": 140.52, "preco_final": 177.43}, {"codigo": "1179", "produto": "Conexão Quadrada Diamante", "linha": "DIAMANTE", "larg": 0.6, "prof": 0.6, "alt": null, "preco_base": 131.06, "preco_final": 165.48}, {"codigo": "1208", "produto": "Estação Trabalho 1,20x1,20 Diamante", "linha": "DIAMANTE", "larg": 1.2, "prof": 1.2, "alt": 0.75, "preco_base": 908.94, "preco_final": 1147.65}, {"codigo": "1209", "produto": "Estação Trabalho 1,20x1,30 Diamante", "linha": "DIAMANTE", "larg": 1.2, "prof": 1.3, "alt": 0.75, "preco_base": 941.99, "preco_final": 1189.38}, {"codigo": "1210", "produto": "Estação Trabalho 1,20x1,37 Diamante", "linha": "DIAMANTE", "larg": 1.2, "prof": 1.37, "alt": 0.75, "preco_base": 966.79, "preco_final": 1220.69}, {"codigo": "1211", "produto": "Estação Trabalho 1,20x1,50 Diamante", "linha": "DIAMANTE", "larg": 1.2, "prof": 1.5, "alt": 0.75, "preco_base": 1008.1, "preco_final": 1272.86}, {"codigo": "1212", "produto": "Estação Trabalho 1,20x1,60 Diamante", "linha": "DIAMANTE", "larg": 1.2, "prof": 1.6, "alt": 0.75, "preco_base": 1041.15, "preco_final": 1314.59}, {"codigo": "3493", "produto": "Estação Trabalho 1,20x1,80 Diamante", "linha": "DIAMANTE", "larg": 1.2, "prof": 1.8, "alt": 0.75, "preco_base": 1107.26, "preco_final": 1398.05}, {"codigo": "1213", "produto": "Estação Trabalho 1,30x1,30 Diamante", "linha": "DIAMANTE", "larg": 1.3, "prof": 1.3, "alt": 0.75, "preco_base": 975.05, "preco_final": 1231.13}, {"codigo": "1214", "produto": "Estação Trabalho 1,30x1,37 Diamante", "linha": "DIAMANTE", "larg": 1.3, "prof": 1.37, "alt": 0.75, "preco_base": 991.58, "preco_final": 1251.99}, {"codigo": "1215", "produto": "Estação Trabalho 1,30x1,50 Diamante", "linha": "DIAMANTE", "larg": 1.3, "prof": 1.5, "alt": 0.75, "preco_base": 1041.15, "preco_final": 1314.59}, {"codigo": "1216", "produto": "Estação Trabalho 1,30x1,60 Diamante", "linha": "DIAMANTE", "larg": 1.3, "prof": 1.6, "alt": 0.75, "preco_base": 1074.21, "preco_final": 1356.32}, {"codigo": "3497", "produto": "Estação Trabalho 1,30x1,80 Diamante", "linha": "DIAMANTE", "larg": 1.3, "prof": 1.8, "alt": 0.75, "preco_base": 1140.31, "preco_final": 1439.78}, {"codigo": "1205", "produto": "Estação Trabalho 1,37x1,37 Diamante", "linha": "DIAMANTE", "larg": 1.37, "prof": 1.37, "alt": 0.75, "preco_base": 1024.63, "preco_final": 1293.72}, {"codigo": "1217", "produto": "Estação Trabalho 1,37x1,50 Diamante", "linha": "DIAMANTE", "larg": 1.37, "prof": 1.5, "alt": 0.75, "preco_base": 1074.21, "preco_final": 1356.32}, {"codigo": "1218", "produto": "Estação Trabalho 1,37x1,60 Diamante", "linha": "DIAMANTE", "larg": 1.37, "prof": 1.6, "alt": 0.75, "preco_base": 1107.26, "preco_final": 1398.05}, {"codigo": "3501", "produto": "Estação Trabalho 1,37x1,80 Diamante", "linha": "DIAMANTE", "larg": 1.37, "prof": 1.8, "alt": 0.75, "preco_base": 1173.37, "preco_final": 1481.53}, {"codigo": "1219", "produto": "Estação Trabalho 1,50x1,50 Diamante", "linha": "DIAMANTE", "larg": 1.5, "prof": 1.5, "alt": 0.75, "preco_base": 1123.78, "preco_final": 1418.92}, {"codigo": "1220", "produto": "Estação Trabalho 1,50x1,60 Diamante", "linha": "DIAMANTE", "larg": 1.5, "prof": 1.6, "alt": 0.75, "preco_base": 1156.83, "preco_final": 1460.65}, {"codigo": "3505", "produto": "Estação Trabalho 1,50x1,80 Diamante", "linha": "DIAMANTE", "larg": 1.5, "prof": 1.8, "alt": 0.75, "preco_base": 1222.94, "preco_final": 1544.12}, {"codigo": "1221", "produto": "Estação Trabalho 1,60x1,60 Diamante", "linha": "DIAMANTE", "larg": 1.6, "prof": 1.6, "alt": 0.75, "preco_base": 1206.42, "preco_final": 1523.26}, {"codigo": "3509", "produto": "Estação Trabalho 1,60x1,80 Diamante", "linha": "DIAMANTE", "larg": 1.6, "prof": 1.8, "alt": 0.75, "preco_base": 1272.52, "preco_final": 1606.72}, {"codigo": "3513", "produto": "Estação Trabalho 1,80x1,80 Diamante", "linha": "DIAMANTE", "larg": 1.8, "prof": 1.8, "alt": 0.75, "preco_base": 1355.15, "preco_final": 1711.05}, {"codigo": "2135", "produto": "Estação Trabalho 1,20x1,20 Pé Painel Diam", "linha": "DIAMANTE", "larg": 1.2, "prof": 1.2, "alt": 0.75, "preco_base": 723.4, "preco_final": 913.38}, {"codigo": "2330", "produto": "Estação Trabalho 1,30Ex1,20D Pé Painel Diam", "linha": "DIAMANTE", "larg": 1.2, "prof": 1.3, "alt": 0.75, "preco_base": 755.55, "preco_final": 953.98}, {"codigo": "5866", "produto": "Estação Trabalho 1,30Dx1,20E Pé Painel Diam", "linha": "DIAMANTE", "larg": 1.2, "prof": 1.3, "alt": 0.75, "preco_base": 755.55, "preco_final": 953.98}, {"codigo": "2331", "produto": "Estação Trabalho 1,37Ex1,20D Pé Painel Diam", "linha": "DIAMANTE", "larg": 1.2, "prof": 1.37, "alt": 0.75, "preco_base": 779.66, "preco_final": 984.43}, {"codigo": "5867", "produto": "Estação Trabalho 1,37Dx1,20E Pé Painel Diam", "linha": "DIAMANTE", "larg": 1.2, "prof": 1.37, "alt": 0.75, "preco_base": 779.66, "preco_final": 984.43}, {"codigo": "2332", "produto": "Estação Trabalho 1,50Ex1,20D Pé Painel Diam", "linha": "DIAMANTE", "larg": 1.2, "prof": 1.5, "alt": 0.75, "preco_base": 819.86, "preco_final": 1035.17}, {"codigo": "5868", "produto": "Estação Trabalho 1,50Dx1,20E Pé Painel Diam", "linha": "DIAMANTE", "larg": 1.2, "prof": 1.5, "alt": 0.75, "preco_base": 819.86, "preco_final": 1035.17}, {"codigo": "2333", "produto": "Estação Trabalho 1,60Ex1,20D Pé Painel Diam", "linha": "DIAMANTE", "larg": 1.2, "prof": 1.6, "alt": 0.75, "preco_base": 852.0, "preco_final": 1075.76}, {"codigo": "5869", "produto": "Estação Trabalho 1,60Dx1,20E Pé Painel Diam", "linha": "DIAMANTE", "larg": 1.2, "prof": 1.6, "alt": 0.75, "preco_base": 852.0, "preco_final": 1075.76}, {"codigo": "3495", "produto": "Estação Trabalho 1,80Ex1,20D Pé Painel Diam", "linha": "DIAMANTE", "larg": 1.2, "prof": 1.8, "alt": 0.75, "preco_base": 916.31, "preco_final": 1156.95}, {"codigo": "5870", "produto": "Estação Trabalho 1,80Dx1,20E Pé Painel Diam", "linha": "DIAMANTE", "larg": 1.2, "prof": 1.8, "alt": 0.75, "preco_base": 916.31, "preco_final": 1156.95}, {"codigo": "2334", "produto": "Estação Trabalho 1,30x1,30 Pé Painel Diam", "linha": "DIAMANTE", "larg": 1.3, "prof": 1.3, "alt": 0.75, "preco_base": 787.7, "preco_final": 994.57}, {"codigo": "2335", "produto": "Estação Trabalho 1,37Ex1,30D Pé Painel Diam", "linha": "DIAMANTE", "larg": 1.3, "prof": 1.37, "alt": 0.75, "preco_base": 803.78, "preco_final": 1014.87}, {"codigo": "5871", "produto": "Estação Trabalho 1,37Dx1,30E Pé Painel Diam", "linha": "DIAMANTE", "larg": 1.3, "prof": 1.37, "alt": 0.75, "preco_base": 803.78, "preco_final": 1014.87}, {"codigo": "2336", "produto": "Estação Trabalho 1,50Ex1,30D Pé Painel Diam", "linha": "DIAMANTE", "larg": 1.3, "prof": 1.5, "alt": 0.75, "preco_base": 852.0, "preco_final": 1075.76}, {"codigo": "5872", "produto": "Estação Trabalho 1,50Dx1,30E Pé Painel Diam", "linha": "DIAMANTE", "larg": 1.3, "prof": 1.5, "alt": 0.75, "preco_base": 852.0, "preco_final": 1075.76}, {"codigo": "2337", "produto": "Estação Trabalho 1,60Ex1,30D Pé Painel Diam", "linha": "DIAMANTE", "larg": 1.3, "prof": 1.6, "alt": 0.75, "preco_base": 884.15, "preco_final": 1116.35}, {"codigo": "5873", "produto": "Estação Trabalho 1,60Dx1,30E Pé Painel Diam", "linha": "DIAMANTE", "larg": 1.3, "prof": 1.6, "alt": 0.75, "preco_base": 884.15, "preco_final": 1116.35}, {"codigo": "3499", "produto": "Estação Trabalho 1,80Ex1,30D Pé Painel Diam", "linha": "DIAMANTE", "larg": 1.3, "prof": 1.8, "alt": 0.75, "preco_base": 948.46, "preco_final": 1197.55}, {"codigo": "5874", "produto": "Estação Trabalho 1,80Dx1,30E Pé Painel Diam", "linha": "DIAMANTE", "larg": 1.3, "prof": 1.8, "alt": 0.75, "preco_base": 948.46, "preco_final": 1197.55}, {"codigo": "2134", "produto": "Estação Trabalho 1,37x1,37 Pé Painel Diam", "linha": "DIAMANTE", "larg": 1.37, "prof": 1.37, "alt": 0.75, "preco_base": 835.93, "preco_final": 1055.47}, {"codigo": "2338", "produto": "Estação Trabalho 1,50Ex1,37D Pé Painel Diam", "linha": "DIAMANTE", "larg": 1.37, "prof": 1.5, "alt": 0.75, "preco_base": 868.08, "preco_final": 1096.06}, {"codigo": "5875", "produto": "Estação Trabalho 1,50Dx1,37E Pé Painel Diam", "linha": "DIAMANTE", "larg": 1.37, "prof": 1.5, "alt": 0.75, "preco_base": 868.08, "preco_final": 1096.06}, {"codigo": "2339", "produto": "Estação Trabalho 1,60Ex1,37D Pé Painel Diam", "linha": "DIAMANTE", "larg": 1.37, "prof": 1.6, "alt": 0.75, "preco_base": 900.23, "preco_final": 1136.65}, {"codigo": "5876", "produto": "Estação Trabalho 1,60Dx1,37E Pé Painel Diam", "linha": "DIAMANTE", "larg": 1.37, "prof": 1.6, "alt": 0.75, "preco_base": 900.23, "preco_final": 1136.65}, {"codigo": "3503", "produto": "Estação Trabalho 1,80Ex1,37D Pé Painel Diam", "linha": "DIAMANTE", "larg": 1.37, "prof": 1.8, "alt": 0.75, "preco_base": 980.61, "preco_final": 1238.15}, {"codigo": "5877", "produto": "Estação Trabalho 1,80Dx1,37E Pé Painel Diam", "linha": "DIAMANTE", "larg": 1.37, "prof": 1.8, "alt": 0.75, "preco_base": 980.61, "preco_final": 1238.15}, {"codigo": "2340", "produto": "Estação Trabalho 1,50x1,50 Pé Painel Diam", "linha": "DIAMANTE", "larg": 1.5, "prof": 1.5, "alt": 0.75, "preco_base": 916.31, "preco_final": 1156.95}, {"codigo": "2341", "produto": "Estação Trabalho 1,60Ex1,50D Pé Painel Diam", "linha": "DIAMANTE", "larg": 1.5, "prof": 1.6, "alt": 0.75, "preco_base": 964.54, "preco_final": 1217.85}, {"codigo": "5878", "produto": "Estação Trabalho 1,60Dx1,50E Pé Painel Diam", "linha": "DIAMANTE", "larg": 1.5, "prof": 1.6, "alt": 0.75, "preco_base": 964.54, "preco_final": 1217.85}, {"codigo": "3507", "produto": "Estação Trabalho 1,80Ex1,50D Pé Painel Diam", "linha": "DIAMANTE", "larg": 1.5, "prof": 1.8, "alt": 0.75, "preco_base": 1028.83, "preco_final": 1299.03}, {"codigo": "5879", "produto": "Estação Trabalho 1,80Dx1,50E Pé Painel Diam", "linha": "DIAMANTE", "larg": 1.5, "prof": 1.8, "alt": 0.75, "preco_base": 1028.83, "preco_final": 1299.03}, {"codigo": "2342", "produto": "Estação Trabalho 1,60x1,60 Pé Painel Diam", "linha": "DIAMANTE", "larg": 1.6, "prof": 1.6, "alt": 0.75, "preco_base": 996.68, "preco_final": 1258.43}, {"codigo": "3511", "produto": "Estação Trabalho 1,80Ex1,60D Pé Painel Diam", "linha": "DIAMANTE", "larg": 1.6, "prof": 1.8, "alt": 0.75, "preco_base": 1077.06, "preco_final": 1359.93}, {"codigo": "5880", "produto": "Estação Trabalho 1,80Dx1,60E Pé Painel Diam", "linha": "DIAMANTE", "larg": 1.6, "prof": 1.8, "alt": 0.75, "preco_base": 1077.06, "preco_final": 1359.93}, {"codigo": "3515", "produto": "Estação Trabalho 1,80x1,80 Pé Painel Diam", "linha": "DIAMANTE", "larg": 1.8, "prof": 1.8, "alt": 0.75, "preco_base": 1157.44, "preco_final": 1461.41}, {"codigo": "1847", "produto": "Divisória Estação Trabalho Plus/Diam", "linha": "DIAMANTE", "larg": 1.2, "prof": null, "alt": 0.4, "preco_base": 128.6, "preco_final": 162.38}, {"codigo": "1387", "produto": "Divisória Estação Trabalho Plus/Diam", "linha": "DIAMANTE", "larg": 1.3, "prof": null, "alt": 0.4, "preco_base": 136.64, "preco_final": 172.53}, {"codigo": "185", "produto": "Divisória Estação Trabalho Plus/Diam", "linha": "DIAMANTE", "larg": 1.37, "prof": null, "alt": 0.4, "preco_base": 144.68, "preco_final": 182.68}, {"codigo": "1848", "produto": "Divisória Estação Trabalho Plus/Diam", "linha": "DIAMANTE", "larg": 1.5, "prof": null, "alt": 0.4, "preco_base": 152.72, "preco_final": 192.83}, {"codigo": "1388", "produto": "Divisória Estação Trabalho Plus/Diam", "linha": "DIAMANTE", "larg": 1.6, "prof": null, "alt": 0.4, "preco_base": 160.76, "preco_final": 202.97}, {"codigo": "4390", "produto": "Divisória Estação Trabalho Plus/Diam", "linha": "DIAMANTE", "larg": 1.8, "prof": null, "alt": 0.4, "preco_base": 176.83, "preco_final": 223.27}, {"codigo": "1222", "produto": "Divisória Reta Estação Trabalho Plus/Diam", "linha": "DIAMANTE", "larg": 1.2, "prof": null, "alt": 0.4, "preco_base": 131.82, "preco_final": 166.44}, {"codigo": "1223", "produto": "Divisória Reta Estação Trabalho Plus/Diam", "linha": "DIAMANTE", "larg": 1.3, "prof": null, "alt": 0.4, "preco_base": 139.86, "preco_final": 176.59}, {"codigo": "1224", "produto": "Divisória Reta Estação Trabalho Plus/Diam", "linha": "DIAMANTE", "larg": 1.37, "prof": null, "alt": 0.4, "preco_base": 144.68, "preco_final": 182.68}, {"codigo": "1225", "produto": "Divisória Reta Estação Trabalho Plus/Diam", "linha": "DIAMANTE", "larg": 1.5, "prof": null, "alt": 0.4, "preco_base": 155.93, "preco_final": 196.89}, {"codigo": "1226", "produto": "Divisória Reta Estação Trabalho Plus/Diam", "linha": "DIAMANTE", "larg": 1.6, "prof": null, "alt": 0.4, "preco_base": 163.97, "preco_final": 207.03}, {"codigo": "3481", "produto": "Divisória Reta Estação Trabalho Plus/Diam", "linha": "DIAMANTE", "larg": 1.8, "prof": null, "alt": 0.4, "preco_base": 180.05, "preco_final": 227.33}, {"codigo": "4392", "produto": "Divisória Lateral Estação Trabalho Plus/Diam", "linha": "DIAMANTE", "larg": 0.6, "prof": null, "alt": 0.4, "preco_base": 75.56, "preco_final": 95.4}, {"codigo": "4394", "produto": "Divisória Lateral Estação Trabalho Plus/Diam", "linha": "DIAMANTE", "larg": 0.7, "prof": null, "alt": 0.4, "preco_base": 81.98, "preco_final": 103.51}, {"codigo": "1337", "produto": "Conexão Meia Lua Diamante", "linha": "DIAMANTE", "larg": 1.26, "prof": 0.6, "alt": 0.75, "preco_base": 280.94, "preco_final": 354.73}, {"codigo": "2312", "produto": "Mesa Plataforma Passa Fio Diamante", "linha": "DIAMANTE", "larg": 1, "prof": 1.2, "alt": 0.75, "preco_base": 830.31, "preco_final": 1048.37}, {"codigo": "2319", "produto": "Mesa Plataforma Tomada Diamante", "linha": "DIAMANTE", "larg": 1, "prof": 1.2, "alt": 0.75, "preco_base": 1133.43, "preco_final": 1431.1}, {"codigo": "2127", "produto": "Mesa Plataforma Passa Fio Diamante", "linha": "DIAMANTE", "larg": 1.2, "prof": 1.2, "alt": 0.75, "preco_base": 905.81, "preco_final": 1143.7}, {"codigo": "2128", "produto": "Mesa Plataforma Tomada Diamante", "linha": "DIAMANTE", "larg": 1.2, "prof": 1.2, "alt": 0.75, "preco_base": 1208.93, "preco_final": 1526.42}, {"codigo": "2129", "produto": "Mesa Plataforma Passa Fio Diamante", "linha": "DIAMANTE", "larg": 1.37, "prof": 1.2, "alt": 0.75, "preco_base": 972.76, "preco_final": 1228.24}, {"codigo": "2130", "produto": "Mesa Plataforma Tomada Diamante", "linha": "DIAMANTE", "larg": 1.37, "prof": 1.2, "alt": 0.75, "preco_base": 1275.88, "preco_final": 1610.96}, {"codigo": "8060", "produto": "Mesa Plataforma Inicio Passa Fio Diamante", "linha": "DIAMANTE", "larg": 1, "prof": 1.2, "alt": 0.75, "preco_base": 642.53, "preco_final": 811.27}, {"codigo": "8516", "produto": "Mesa Plataforma Inicio Tomada Diamante", "linha": "DIAMANTE", "larg": 1, "prof": 1.2, "alt": 0.75, "preco_base": 945.64, "preco_final": 1193.99}, {"codigo": "8519", "produto": "Mesa Plataforma Inicio Passa Fio Diamante", "linha": "DIAMANTE", "larg": 1.2, "prof": 1.2, "alt": 0.75, "preco_base": 728.29, "preco_final": 919.56}, {"codigo": "8522", "produto": "Mesa Plataforma Inicio Tomada Diamante", "linha": "DIAMANTE", "larg": 1.2, "prof": 1.2, "alt": 0.75, "preco_base": 1031.41, "preco_final": 1302.29}, {"codigo": "8525", "produto": "Mesa Plataforma Inicio Passa Fio Diamante", "linha": "DIAMANTE", "larg": 1.37, "prof": 1.2, "alt": 0.75, "preco_base": 795.21, "preco_final": 1004.05}, {"codigo": "8528", "produto": "Mesa Plataforma Inicio Tomada Diamante", "linha": "DIAMANTE", "larg": 1.37, "prof": 1.2, "alt": 0.75, "preco_base": 1098.33, "preco_final": 1386.78}, {"codigo": "8514", "produto": "Mesa Plataforma Meio Passa Fio Diamante", "linha": "DIAMANTE", "larg": 1, "prof": 1.2, "alt": 0.75, "preco_base": 630.23, "preco_final": 795.74}, {"codigo": "8517", "produto": "Mesa Plataforma Meio Tomada Diamante", "linha": "DIAMANTE", "larg": 1, "prof": 1.2, "alt": 0.75, "preco_base": 933.35, "preco_final": 1178.48}, {"codigo": "8520", "produto": "Mesa Plataforma Meio Passa Fio Diamante", "linha": "DIAMANTE", "larg": 1.2, "prof": 1.2, "alt": 0.75, "preco_base": 716.01, "preco_final": 904.05}, {"codigo": "8523", "produto": "Mesa Plataforma Meio Tomada Diamante", "linha": "DIAMANTE", "larg": 1.2, "prof": 1.2, "alt": 0.75, "preco_base": 1019.12, "preco_final": 1286.77}, {"codigo": "8526", "produto": "Mesa Plataforma Meio Passa Fio Diamante", "linha": "DIAMANTE", "larg": 1.37, "prof": 1.2, "alt": 0.75, "preco_base": 782.67, "preco_final": 988.22}, {"codigo": "8529", "produto": "Mesa Plataforma Meio Tomada Diamante", "linha": "DIAMANTE", "larg": 1.37, "prof": 1.2, "alt": 0.75, "preco_base": 1085.78, "preco_final": 1370.94}, {"codigo": "8515", "produto": "Mesa Plataforma Fim Passa Fio Diamante", "linha": "DIAMANTE", "larg": 1, "prof": 1.2, "alt": 0.75, "preco_base": 756.29, "preco_final": 954.91}, {"codigo": "8518", "produto": "Mesa Plataforma Fim Tomada Diamante", "linha": "DIAMANTE", "larg": 1, "prof": 1.2, "alt": 0.75, "preco_base": 1059.4, "preco_final": 1337.63}, {"codigo": "8521", "produto": "Mesa Plataforma Fim Passa Fio Diamante", "linha": "DIAMANTE", "larg": 1.2, "prof": 1.2, "alt": 0.75, "preco_base": 842.04, "preco_final": 1063.18}, {"codigo": "8524", "produto": "Mesa Plataforma Fim Tomada Diamante", "linha": "DIAMANTE", "larg": 1.2, "prof": 1.2, "alt": 0.75, "preco_base": 1145.15, "preco_final": 1445.9}, {"codigo": "8527", "produto": "Mesa Plataforma Fim Passa Fio Diamante", "linha": "DIAMANTE", "larg": 1.37, "prof": 1.2, "alt": 0.75, "preco_base": 908.88, "preco_final": 1147.57}, {"codigo": "8530", "produto": "Mesa Plataforma Fim Tomada Diamante", "linha": "DIAMANTE", "larg": 1.37, "prof": 1.2, "alt": 0.75, "preco_base": 1211.99, "preco_final": 1530.29}, {"codigo": "7248", "produto": "Mesa Plataforma Individual Passa Fio Diamante", "linha": "DIAMANTE", "larg": 1, "prof": 0.7, "alt": 0.75, "preco_base": 560.92, "preco_final": 708.23}, {"codigo": "7249", "produto": "Mesa Plataforma Individual Tomada Diamante", "linha": "DIAMANTE", "larg": 1, "prof": 0.7, "alt": 0.75, "preco_base": 712.48, "preco_final": 899.59}, {"codigo": "7430", "produto": "Mesa Plataforma Individual Passa Fio Diamante", "linha": "DIAMANTE", "larg": 1.2, "prof": 0.7, "alt": 0.75, "preco_base": 624.24, "preco_final": 788.19}, {"codigo": "7431", "produto": "Mesa Plataforma Individual Tomada Diamante", "linha": "DIAMANTE", "larg": 1.2, "prof": 0.7, "alt": 0.75, "preco_base": 775.8, "preco_final": 979.55}, {"codigo": "7432", "produto": "Mesa Plataforma Individual Passa Fio Diamante", "linha": "DIAMANTE", "larg": 1.37, "prof": 0.7, "alt": 0.75, "preco_base": 679.79, "preco_final": 858.32}, {"codigo": "7433", "produto": "Mesa Plataforma Individual Tomada Diamante", "linha": "DIAMANTE", "larg": 1.37, "prof": 0.7, "alt": 0.75, "preco_base": 831.35, "preco_final": 1049.69}, {"codigo": "3115", "produto": "Conexão Meia Lua Plataforma Diamante", "linha": "DIAMANTE", "larg": 1.2, "prof": 0.6, "alt": 0.75, "preco_base": 280.94, "preco_final": 354.73}, {"codigo": "2199", "produto": "Armário Secretária Junção Diamante", "linha": "DIAMANTE", "larg": 1.2, "prof": 0.6, "alt": 0.75, "preco_base": 957.01, "preco_final": 1208.35}, {"codigo": "2204", "produto": "Gavet Volante Plataf 4 Gavetas Diam", "linha": "DIAMANTE", "larg": 0.41, "prof": 0.5, "alt": 0.65, "preco_base": 643.02, "preco_final": 811.9}, {"codigo": "-", "produto": "Gavet Vol Plataf 4 Gav Diam Rodízio Silicone", "linha": "DIAMANTE", "larg": 0.41, "prof": 0.5, "alt": 0.65, "preco_base": 766.0, "preco_final": 967.17}, {"codigo": "2205", "produto": "Gavet Volante Plataf 2 Gav/Pasta Susp Diam", "linha": "DIAMANTE", "larg": 0.41, "prof": 0.5, "alt": 0.65, "preco_base": 578.72, "preco_final": 730.7}, {"codigo": "-", "produto": "Gavet Vol Plataf 2 Gav/Past Susp Diam Rod Silic", "linha": "DIAMANTE", "larg": 0.41, "prof": 0.5, "alt": 0.65, "preco_base": 701.02, "preco_final": 885.12}, {"codigo": "3552", "produto": "Balcão Atendimento Dark 1,20 Diamante", "linha": "DIAMANTE", "larg": 1.2, "prof": 0.6, "alt": 1.16, "preco_base": 1639.7, "preco_final": 2070.33}, {"codigo": "3554", "produto": "Balcão Atend Reto Dark 0,80 Diamante", "linha": "DIAMANTE", "larg": 0.8, "prof": 0.6, "alt": 1.16, "preco_base": 771.63, "preco_final": 974.28}, {"codigo": "3556", "produto": "Balcão Atend Reto Dark 0,90 Diamante", "linha": "DIAMANTE", "larg": 0.9, "prof": 0.6, "alt": 1.16, "preco_base": 835.93, "preco_final": 1055.47}, {"codigo": "3558", "produto": "Balcão Atend Reto Dark 1,00 Diamante", "linha": "DIAMANTE", "larg": 1, "prof": 0.6, "alt": 1.16, "preco_base": 884.15, "preco_final": 1116.35}, {"codigo": "3560", "produto": "Balcão Atend Reto Dark 1,20 Diamante", "linha": "DIAMANTE", "larg": 1.2, "prof": 0.6, "alt": 1.16, "preco_base": 948.46, "preco_final": 1197.55}, {"codigo": "3562", "produto": "Balcão Atend Reto Dark 1,37 Diamante", "linha": "DIAMANTE", "larg": 1.37, "prof": 0.6, "alt": 1.16, "preco_base": 1028.83, "preco_final": 1299.03}, {"codigo": "2957", "produto": "Balcao de Atendimento 1,37 Diamante", "linha": "DIAMANTE", "larg": 1.37, "prof": 0.6, "alt": 1.11, "preco_base": 1527.18, "preco_final": 1928.25}, {"codigo": "1355", "produto": "Balcao de Atendimento 1,20 Diamante", "linha": "DIAMANTE", "larg": 1.2, "prof": 0.6, "alt": 1.11, "preco_base": 1286.05, "preco_final": 1623.8}, {"codigo": "2958", "produto": "Balcao Atend Reto 0,80 Diamante", "linha": "DIAMANTE", "larg": 0.8, "prof": 0.6, "alt": 1.11, "preco_base": 594.79, "preco_final": 751.0}, {"codigo": "2959", "produto": "Balcao Atend Reto 0,90 Diamante", "linha": "DIAMANTE", "larg": 0.9, "prof": 0.6, "alt": 1.11, "preco_base": 626.95, "preco_final": 791.6}, {"codigo": "2960", "produto": "Balcao Atend Reto 1,00 Diamante", "linha": "DIAMANTE", "larg": 1, "prof": 0.6, "alt": 1.11, "preco_base": 675.18, "preco_final": 852.5}, {"codigo": "2961", "produto": "Balcao Atend Reto 1,20 Diamante", "linha": "DIAMANTE", "larg": 1.2, "prof": 0.6, "alt": 1.11, "preco_base": 755.55, "preco_final": 953.98}, {"codigo": "2962", "produto": "Balcao Atend Reto 1,37 Diamante", "linha": "DIAMANTE", "larg": 1.37, "prof": 0.6, "alt": 1.11, "preco_base": 819.86, "preco_final": 1035.17}, {"codigo": "3910", "produto": "Cabine Telemarketing Completa Diamante", "linha": "DIAMANTE", "larg": 0.83, "prof": 0.81, "alt": 1.26, "preco_base": 610.87, "preco_final": 771.3}, {"codigo": "3912", "produto": "Cabine Telemarketing Completa Diamante", "linha": "DIAMANTE", "larg": 0.98, "prof": 0.81, "alt": 1.26, "preco_base": 659.1, "preco_final": 832.2}, {"codigo": "3914", "produto": "Cabine Telemarketing Completa Diamante", "linha": "DIAMANTE", "larg": 1.23, "prof": 0.81, "alt": 1.26, "preco_base": 723.4, "preco_final": 913.38}, {"codigo": "3916", "produto": "Painel Frontal Superior Diamante", "linha": "DIAMANTE", "larg": 0.8, "prof": null, "alt": 0.35, "preco_base": 49.84, "preco_final": 62.93}, {"codigo": "3918", "produto": "Painel Frontal Superior Diamante", "linha": "DIAMANTE", "larg": 0.95, "prof": null, "alt": 0.35, "preco_base": 61.09, "preco_final": 77.13}, {"codigo": "3920", "produto": "Painel Frontal Superior Diamante", "linha": "DIAMANTE", "larg": 1.2, "prof": null, "alt": 0.35, "preco_base": 77.16, "preco_final": 97.42}, {"codigo": "3922", "produto": "Painel Lateral Cabine Telemark Diamante", "linha": "DIAMANTE", "larg": 0.81, "prof": null, "alt": 1.26, "preco_base": 184.87, "preco_final": 233.42}, {"codigo": "3924", "produto": "Tampo da Mesa e Saia Diamante", "linha": "DIAMANTE", "larg": 0.8, "prof": 0.68, "alt": null, "preco_base": 200.95, "preco_final": 253.72}, {"codigo": "3926", "produto": "Tampo da Mesa e Saia Diamante", "linha": "DIAMANTE", "larg": 0.95, "prof": 0.68, "alt": null, "preco_base": 233.09, "preco_final": 294.31}, {"codigo": "3928", "produto": "Tampo da Mesa e Saia Diamante", "linha": "DIAMANTE", "larg": 1.2, "prof": 0.68, "alt": null, "preco_base": 281.32, "preco_final": 355.2}, {"codigo": "3930", "produto": "Cabine Atendimento Completa Diamante", "linha": "DIAMANTE", "larg": 0.83, "prof": 1.15, "alt": 1.26, "preco_base": 643.02, "preco_final": 811.9}, {"codigo": "3932", "produto": "Cabine Atendimento Completa Diamante", "linha": "DIAMANTE", "larg": 0.98, "prof": 1.15, "alt": 1.26, "preco_base": 675.18, "preco_final": 852.5}, {"codigo": "3934", "produto": "Cabine Atendimento Completa Diamante", "linha": "DIAMANTE", "larg": 1.23, "prof": 1.15, "alt": 1.26, "preco_base": 723.4, "preco_final": 913.38}, {"codigo": "3905", "produto": "Painel Lateral Cabine Atendim Diamante", "linha": "DIAMANTE", "larg": 1.15, "prof": null, "alt": 1.26, "preco_base": 225.06, "preco_final": 284.17}, {"codigo": "3936", "produto": "Tampo da Mesa e Saia Diamante", "linha": "DIAMANTE", "larg": 0.8, "prof": 0.7, "alt": null, "preco_base": 200.95, "preco_final": 253.72}, {"codigo": "3938", "produto": "Tampo da Mesa e Saia Diamante", "linha": "DIAMANTE", "larg": 0.95, "prof": 0.7, "alt": null, "preco_base": 233.09, "preco_final": 294.31}, {"codigo": "3907", "produto": "Tampo da Mesa e Saia Diamante", "linha": "DIAMANTE", "larg": 1.2, "prof": 0.7, "alt": null, "preco_base": 281.32, "preco_final": 355.2}, {"codigo": "3472", "produto": "Armário Diretor 2,10 Plus", "linha": "Plus", "larg": 0.91, "prof": 0.41, "alt": 2.1, "preco_base": 1234.81, "preco_final": 1559.1}, {"codigo": "4079", "produto": "Armário Diretor 2,10 Plus", "linha": "Plus", "larg": 0.91, "prof": 0.46, "alt": 2.1, "preco_base": 1253.01, "preco_final": 1582.09}, {"codigo": "1404", "produto": "Armário Diretor Plus", "linha": "Plus", "larg": 0.91, "prof": 0.41, "alt": 1.6, "preco_base": 855.18, "preco_final": 1079.77}, {"codigo": "4081", "produto": "Armário Diretor Plus", "linha": "Plus", "larg": 0.91, "prof": 0.46, "alt": 1.6, "preco_base": 914.71, "preco_final": 1154.93}, {"codigo": "1853", "produto": "Armário Diretor 4 Gavetas Plus", "linha": "Plus", "larg": 0.99, "prof": 0.46, "alt": 1.6, "preco_base": 1400.58, "preco_final": 1768.4}, {"codigo": "1849", "produto": "Armário Diretor 1 Porta Plus", "linha": "Plus", "larg": 0.42, "prof": 0.41, "alt": 1.6, "preco_base": 564.39, "preco_final": 712.62}, {"codigo": "4089", "produto": "Armário Diretor 1 Porta Plus", "linha": "Plus", "larg": 0.42, "prof": 0.46, "alt": 1.6, "preco_base": 603.95, "preco_final": 762.56}, {"codigo": "1405", "produto": "Armário Executivo Plus", "linha": "Plus", "larg": 0.91, "prof": 0.41, "alt": 1.6, "preco_base": 730.77, "preco_final": 922.69}, {"codigo": "4083", "produto": "Armário Executivo Plus", "linha": "Plus", "larg": 0.91, "prof": 0.46, "alt": 1.6, "preco_base": 784.08, "preco_final": 990.0}, {"codigo": "1850", "produto": "Armario Executivo 1 Porta Plus", "linha": "Plus", "larg": 0.42, "prof": 0.41, "alt": 1.6, "preco_base": 438.48, "preco_final": 553.63}, {"codigo": "4091", "produto": "Armario Executivo 1 Porta Plus", "linha": "Plus", "larg": 0.42, "prof": 0.46, "alt": 1.6, "preco_base": 482.07, "preco_final": 608.67}, {"codigo": "2935", "produto": "Armário Diretor 1 Pasta Susp Plus (F15mm)", "linha": "Plus", "larg": 0.91, "prof": 0.41, "alt": 1.6, "preco_base": 1137.98, "preco_final": 1436.85}, {"codigo": "1854", "produto": "Armário Diretor 2 Pasta Susp Plus (F15mm)", "linha": "Plus", "larg": 0.91, "prof": 0.41, "alt": 1.6, "preco_base": 1324.16, "preco_final": 1671.91}, {"codigo": "1382", "produto": "Armário Diretor 3 Pasta Susp Plus (F15mm)", "linha": "Plus", "larg": 0.91, "prof": 0.41, "alt": 1.6, "preco_base": 1510.34, "preco_final": 1906.99}, {"codigo": "2936", "produto": "Armário Diretor 4 Pasta Susp Plus (F15mm)", "linha": "Plus", "larg": 0.91, "prof": 0.41, "alt": 1.6, "preco_base": 1667.87, "preco_final": 2105.89}, {"codigo": "4903", "produto": "Suporte Pasta Susp Armário Plus", "linha": "Plus", "larg": null, "prof": null, "alt": null, "preco_base": 137.43, "preco_final": 173.52}, {"codigo": "1406", "produto": "Armário Estante Plus", "linha": "Plus", "larg": 0.91, "prof": 0.41, "alt": 1.6, "preco_base": 570.28, "preco_final": 720.06}, {"codigo": "4085", "produto": "Armário Estante Plus", "linha": "Plus", "larg": 0.91, "prof": 0.46, "alt": 1.6, "preco_base": 634.18, "preco_final": 800.73}, {"codigo": "1851", "produto": "Armario Estante 4 Gavetas Plus", "linha": "Plus", "larg": 0.42, "prof": 0.41, "alt": 1.6, "preco_base": 764.9, "preco_final": 965.78}, {"codigo": "4095", "produto": "Armario Estante 4 Gavetas Plus", "linha": "Plus", "larg": 0.42, "prof": 0.46, "alt": 1.6, "preco_base": 819.17, "preco_final": 1034.31}, {"codigo": "1407", "produto": "Armário Secretária Plus", "linha": "Plus", "larg": 0.91, "prof": 0.41, "alt": 0.75, "preco_base": 467.32, "preco_final": 590.05}, {"codigo": "4087", "produto": "Armário Secretária Plus", "linha": "Plus", "larg": 0.91, "prof": 0.46, "alt": 0.75, "preco_base": 500.43, "preco_final": 631.85}, {"codigo": "3470", "produto": "Armário Secretária 1 Porta Plus", "linha": "Plus", "larg": 0.41, "prof": 0.41, "alt": 0.75, "preco_base": 303.75, "preco_final": 383.52}, {"codigo": "4093", "produto": "Armário Secretária 1 Porta Plus", "linha": "Plus", "larg": 0.42, "prof": 0.46, "alt": 0.75, "preco_base": 324.8, "preco_final": 410.1}, {"codigo": "3566", "produto": "Armário Secretária 4 Porta Plus", "linha": "Plus", "larg": 1.6, "prof": 0.41, "alt": 0.75, "preco_base": 734.17, "preco_final": 926.99}, {"codigo": "1852", "produto": "Credenza Gav/2 Pasta Susp Plus", "linha": "Plus", "larg": 1.3, "prof": 0.46, "alt": 0.75, "preco_base": 964.83, "preco_final": 1218.22}, {"codigo": "2940", "produto": "Credenza 4 Gaveta Plus", "linha": "Plus", "larg": 1.3, "prof": 0.46, "alt": 0.75, "preco_base": 1097.6, "preco_final": 1385.86}, {"codigo": "3090", "produto": "Credenza 3 Portas Plus", "linha": "Plus", "larg": 1.3, "prof": 0.46, "alt": 0.75, "preco_base": 835.93, "preco_final": 1055.47}, {"codigo": "1408", "produto": "Arquivo Porta/Pasta Susp Plus", "linha": "Plus", "larg": 0.5, "prof": 0.46, "alt": 1.43, "preco_base": 729.04, "preco_final": 920.5}, {"codigo": "1409", "produto": "Arquivo Pasta Suspensa Plus", "linha": "Plus", "larg": 0.5, "prof": 0.46, "alt": 1.43, "preco_base": 813.66, "preco_final": 1027.35}, {"codigo": "1410", "produto": "Arquivo Pasta Suspensa Baixo Plus", "linha": "Plus", "larg": 0.5, "prof": 0.46, "alt": 0.75, "preco_base": 453.9, "preco_final": 573.1}, {"codigo": "1389", "produto": "Gaveteiro Vol 2 Gav/Pasta Susp Plus", "linha": "Plus", "larg": 0.52, "prof": 0.47, "alt": 0.64, "preco_base": 548.98, "preco_final": 693.16}, {"codigo": "1835", "produto": "Gaveteiro Volante 4 Gavetas Plus", "linha": "Plus", "larg": 0.52, "prof": 0.47, "alt": 0.64, "preco_base": 604.53, "preco_final": 763.3}, {"codigo": "3476", "produto": "Gaveteiro Volante 4 Gav Estreito Plus", "linha": "Plus", "larg": 0.4, "prof": 0.42, "alt": 0.61, "preco_base": 397.3, "preco_final": 501.65}, {"codigo": "1385", "produto": "Gaveteiro Volante 3 Gav/Vao Plus", "linha": "Plus", "larg": 0.4, "prof": 0.42, "alt": 0.61, "preco_base": 383.02, "preco_final": 483.61}, {"codigo": "1384", "produto": "Gaveteiro Volante 5 Gavetas Plus", "linha": "Plus", "larg": 0.4, "prof": 0.42, "alt": 0.61, "preco_base": 446.43, "preco_final": 563.68}, {"codigo": "1390", "produto": "Mesa Diretor Plus", "linha": "Plus", "larg": 1.6, "prof": 0.7, "alt": 0.75, "preco_base": 453.8, "preco_final": 572.98}, {"codigo": "1391", "produto": "Mesa Gerente Plus", "linha": "Plus", "larg": 1.37, "prof": 0.7, "alt": 0.75, "preco_base": 424.2, "preco_final": 535.61}, {"codigo": "1392", "produto": "Mesa Secretária Plus", "linha": "Plus", "larg": 1.2, "prof": 0.6, "alt": 0.75, "preco_base": 387.28, "preco_final": 488.99}, {"codigo": "1393", "produto": "Mesa Recepção Plus", "linha": "Plus", "larg": 1, "prof": 0.6, "alt": 0.75, "preco_base": 363.38, "preco_final": 458.81}, {"codigo": "3109", "produto": "Mesa Auxiliar 0,80x0,60 Plus", "linha": "Plus", "larg": 0.8, "prof": 0.6, "alt": 0.75, "preco_base": 339.96, "preco_final": 429.25}, {"codigo": "1395", "produto": "Mesa Auxiliar 0,80x0,70 Plus", "linha": "Plus", "larg": 0.8, "prof": 0.7, "alt": 0.75, "preco_base": 349.99, "preco_final": 441.91}, {"codigo": "1478", "produto": "Mesa Diretor Plus Pé Painel", "linha": "Plus", "larg": 1.6, "prof": 0.7, "alt": 0.75, "preco_base": 429.88, "preco_final": 542.78}, {"codigo": "1479", "produto": "Mesa Gerente Plus Pé Painel", "linha": "Plus", "larg": 1.37, "prof": 0.7, "alt": 0.75, "preco_base": 395.34, "preco_final": 499.17}, {"codigo": "1480", "produto": "Mesa Secretária Plus Pé Painel", "linha": "Plus", "larg": 1.2, "prof": 0.6, "alt": 0.75, "preco_base": 337.8, "preco_final": 426.51}, {"codigo": "1481", "produto": "Mesa Recepção Plus Pé Painel", "linha": "Plus", "larg": 1, "prof": 0.6, "alt": 0.75, "preco_base": 314.73, "preco_final": 397.38}, {"codigo": "3110", "produto": "Mesa Auxiliar 0,80x0,60 Plus Pé Painel", "linha": "Plus", "larg": 0.8, "prof": 0.6, "alt": 0.75, "preco_base": 290.05, "preco_final": 366.22}, {"codigo": "1757", "produto": "Mesa Auxiliar 0,80x0,70 Plus Pé Painel", "linha": "Plus", "larg": 0.8, "prof": 0.7, "alt": 0.75, "preco_base": 302.76, "preco_final": 382.27}, {"codigo": "4771", "produto": "Mesa Aux Apoio Plus Pé Painel", "linha": "Plus", "larg": 0.8, "prof": 0.5, "alt": 0.75, "preco_base": 223.53, "preco_final": 282.24}, {"codigo": "4772", "produto": "Mesa Aux Apoio Plus Pé Painel", "linha": "Plus", "larg": 1, "prof": 0.5, "alt": 0.75, "preco_base": 248.36, "preco_final": 313.59}, {"codigo": "1838", "produto": "Mesa Diretor Plus C/Calha", "linha": "Plus", "larg": 1.6, "prof": 0.7, "alt": 0.75, "preco_base": 576.93, "preco_final": 728.45}, {"codigo": "1839", "produto": "Mesa Gerente Plus C/Calha", "linha": "Plus", "larg": 1.37, "prof": 0.7, "alt": 0.75, "preco_base": 552.37, "preco_final": 697.44}, {"codigo": "1840", "produto": "Mesa Secretária Plus C/Calha", "linha": "Plus", "larg": 1.2, "prof": 0.6, "alt": 0.75, "preco_base": 492.18, "preco_final": 621.43}, {"codigo": "1842", "produto": "Mesa Recepção Plus C/Calha", "linha": "Plus", "larg": 1, "prof": 0.6, "alt": 0.75, "preco_base": 450.08, "preco_final": 568.29}, {"codigo": "3114", "produto": "Mesa Auxiliar 0,80x0,60 Plus C/Calha", "linha": "Plus", "larg": 0.8, "prof": 0.6, "alt": 0.75, "preco_base": 436.05, "preco_final": 550.57}, {"codigo": "1843", "produto": "Mesa Auxiliar 0,80x0,70 Plus C/Calha", "linha": "Plus", "larg": 0.8, "prof": 0.7, "alt": 0.75, "preco_base": 444.21, "preco_final": 560.87}, {"codigo": "1845", "produto": "Mesa Telefone Plus", "linha": "Plus", "larg": 0.44, "prof": 0.42, "alt": 0.81, "preco_base": 233.23, "preco_final": 294.48}, {"codigo": "3901", "produto": "Mesa Reunião Redonda Plus", "linha": "Plus", "larg": 0.9, "prof": 0.9, "alt": 0.75, "preco_base": 451.09, "preco_final": 569.56}, {"codigo": "1859", "produto": "Mesa Reunião Redonda Plus", "linha": "Plus", "larg": 1.1, "prof": 1.1, "alt": 0.75, "preco_base": 503.69, "preco_final": 635.97}, {"codigo": "1860", "produto": "Mesa Reunião Redonda Plus", "linha": "Plus", "larg": 1.2, "prof": 1.2, "alt": 0.75, "preco_base": 535.83, "preco_final": 676.56}, {"codigo": "3489", "produto": "Mesa Reunião Redonda Plus", "linha": "Plus", "larg": 1.37, "prof": 1.37, "alt": 0.75, "preco_base": 775.72, "preco_final": 979.45}, {"codigo": "3903", "produto": "Mesa Reunião Redonda Plus Pé Painel", "linha": "Plus", "larg": 0.9, "prof": 0.9, "alt": 0.75, "preco_base": 420.47, "preco_final": 530.89}, {"codigo": "3024", "produto": "Mesa Reunião Redonda Plus Pé Painel", "linha": "Plus", "larg": 1.1, "prof": 1.1, "alt": 0.75, "preco_base": 438.0, "preco_final": 553.03}, {"codigo": "3025", "produto": "Mesa Reunião Redonda Plus Pé Painel", "linha": "Plus", "larg": 1.2, "prof": 1.2, "alt": 0.75, "preco_base": 481.58, "preco_final": 608.05}, {"codigo": "3491", "produto": "Mesa Reunião Redonda Plus Pé Painel", "linha": "Plus", "larg": 1.37, "prof": 1.37, "alt": 0.75, "preco_base": 592.32, "preco_final": 747.88}, {"codigo": "3023", "produto": "Mesa Reunião Gota Plus ( 0,60 )", "linha": "Plus", "larg": 0.9, "prof": 0.9, "alt": 0.75, "preco_base": 256.16, "preco_final": 323.43}, {"codigo": "1867", "produto": "Mesa Reunião Gota Plus ( 0,60 )", "linha": "Plus", "larg": 1.1, "prof": 1.1, "alt": 0.75, "preco_base": 322.27, "preco_final": 406.9}, {"codigo": "1870", "produto": "Mesa Reunião Gota Plus ( 0,60 )", "linha": "Plus", "larg": 1.2, "prof": 1.2, "alt": 0.75, "preco_base": 355.32, "preco_final": 448.63}, {"codigo": "7319", "produto": "Mesa Reunião Gota Plus ( 0,70 )", "linha": "Plus", "larg": 0.9, "prof": 0.9, "alt": 0.75, "preco_base": 256.16, "preco_final": 323.43}, {"codigo": "7320", "produto": "Mesa Reunião Gota Plus ( 0,70 )", "linha": "Plus", "larg": 1.1, "prof": 1.1, "alt": 0.75, "preco_base": 322.27, "preco_final": 406.9}, {"codigo": "7321", "produto": "Mesa Reunião Gota Plus ( 0,70 )", "linha": "Plus", "larg": 1.2, "prof": 1.2, "alt": 0.75, "preco_base": 355.32, "preco_final": 448.63}, {"codigo": "1861", "produto": "Mesa Reunião Retangular Plus", "linha": "Plus", "larg": 1.8, "prof": 0.9, "alt": 0.75, "preco_base": 783.54, "preco_final": 989.31}, {"codigo": "1864", "produto": "Mesa Reunião Retangular Plus", "linha": "Plus", "larg": 2, "prof": 1, "alt": 0.75, "preco_base": 845.57, "preco_final": 1067.64}, {"codigo": "3030", "produto": "Mesa Reunião Retangular Plus", "linha": "Plus", "larg": 2.4, "prof": 1, "alt": 0.75, "preco_base": 921.24, "preco_final": 1163.18}, {"codigo": "3034", "produto": "Mesa Reunião Retangular Plus", "linha": "Plus", "larg": 3, "prof": 1, "alt": 0.75, "preco_base": 1074.21, "preco_final": 1356.32}, {"codigo": "3038", "produto": "Mesa Reunião Retangular Plus", "linha": "Plus", "larg": 3.5, "prof": 1, "alt": 0.75, "preco_base": 1231.21, "preco_final": 1554.56}, {"codigo": "1873", "produto": "Mesa Reunião Retangular Plus Pé Painel", "linha": "Plus", "larg": 1.8, "prof": 0.9, "alt": 0.75, "preco_base": 652.18, "preco_final": 823.47}, {"codigo": "1876", "produto": "Mesa Reunião Retangular Plus Pé Painel", "linha": "Plus", "larg": 2, "prof": 1, "alt": 0.75, "preco_base": 732.57, "preco_final": 924.96}, {"codigo": "3031", "produto": "Mesa Reunião Retangular Plus Pé Painel", "linha": "Plus", "larg": 2.4, "prof": 1, "alt": 0.75, "preco_base": 846.74, "preco_final": 1069.11}, {"codigo": "3035", "produto": "Mesa Reunião Retangular Plus Pé Painel", "linha": "Plus", "larg": 3, "prof": 1, "alt": 0.75, "preco_base": 1044.91, "preco_final": 1319.33}, {"codigo": "3039", "produto": "Mesa Reunião Retangular Plus Pé Painel", "linha": "Plus", "larg": 3.5, "prof": 1, "alt": 0.75, "preco_base": 1197.63, "preco_final": 1512.15}, {"codigo": "3026", "produto": "Mesa Reunião Oval Plus", "linha": "Plus", "larg": 1.8, "prof": 0.9, "alt": 0.75, "preco_base": 812.61, "preco_final": 1026.02}, {"codigo": "3028", "produto": "Mesa Reunião Oval Plus", "linha": "Plus", "larg": 2, "prof": 1, "alt": 0.75, "preco_base": 877.24, "preco_final": 1107.62}, {"codigo": "3032", "produto": "Mesa Reunião Oval Plus", "linha": "Plus", "larg": 2.4, "prof": 1, "alt": 0.75, "preco_base": 952.34, "preco_final": 1202.45}, {"codigo": "3036", "produto": "Mesa Reunião Oval Plus", "linha": "Plus", "larg": 3, "prof": 1, "alt": 0.75, "preco_base": 1096.27, "preco_final": 1384.18}, {"codigo": "3040", "produto": "Mesa Reunião Oval Plus", "linha": "Plus", "larg": 3.5, "prof": 1, "alt": 0.75, "preco_base": 1272.52, "preco_final": 1606.72}, {"codigo": "3027", "produto": "Mesa Reunião Oval Plus Pé Painel", "linha": "Plus", "larg": 1.8, "prof": 0.9, "alt": 0.75, "preco_base": 681.33, "preco_final": 860.26}, {"codigo": "3029", "produto": "Mesa Reunião Oval Plus Pé Painel", "linha": "Plus", "larg": 2, "prof": 1, "alt": 0.75, "preco_base": 805.39, "preco_final": 1016.9}, {"codigo": "3033", "produto": "Mesa Reunião Oval Plus Pé Painel", "linha": "Plus", "larg": 2.4, "prof": 1, "alt": 0.75, "preco_base": 884.15, "preco_final": 1116.35}, {"codigo": "3037", "produto": "Mesa Reunião Oval Plus Pé Painel", "linha": "Plus", "larg": 3, "prof": 1, "alt": 0.75, "preco_base": 1060.99, "preco_final": 1339.63}, {"codigo": "3041", "produto": "Mesa Reunião Oval Plus Pé Painel", "linha": "Plus", "larg": 3.5, "prof": 1, "alt": 0.75, "preco_base": 1237.81, "preco_final": 1562.89}, {"codigo": "1398", "produto": "Conexão Leque Plus", "linha": "Plus", "larg": 0.7, "prof": 0.7, "alt": null, "preco_base": 120.56, "preco_final": 152.23}, {"codigo": "1399", "produto": "Conexão Leque Plus", "linha": "Plus", "larg": 0.7, "prof": 0.6, "alt": null, "preco_base": 109.31, "preco_final": 138.02}, {"codigo": "1400", "produto": "Conexão Leque Plus", "linha": "Plus", "larg": 0.6, "prof": 0.6, "alt": null, "preco_base": 99.67, "preco_final": 125.84}, {"codigo": "6115", "produto": "Pé Aço Conexão", "linha": "Plus", "larg": null, "prof": null, "alt": null, "preco_base": 75.43, "preco_final": 95.24}, {"codigo": "1401", "produto": "Conexão Quadrada Plus", "linha": "Plus", "larg": 0.7, "prof": 0.7, "alt": null, "preco_base": 120.56, "preco_final": 152.23}, {"codigo": "1402", "produto": "Conexão Quadrada Plus", "linha": "Plus", "larg": 0.7, "prof": 0.6, "alt": null, "preco_base": 109.31, "preco_final": 138.02}, {"codigo": "1403", "produto": "Conexão Quadrada Plus", "linha": "Plus", "larg": 0.6, "prof": 0.6, "alt": null, "preco_base": 99.67, "preco_final": 125.84}, {"codigo": "1855", "produto": "Estação Trabalho 1,20x1,20 Plus", "linha": "Plus", "larg": 1.2, "prof": 1.2, "alt": 0.75, "preco_base": 657.51, "preco_final": 830.19}, {"codigo": "2812", "produto": "Estação Trabalho 1,20x1,30 Plus", "linha": "Plus", "larg": 1.2, "prof": 1.3, "alt": 0.75, "preco_base": 678.55, "preco_final": 856.76}, {"codigo": "2821", "produto": "Estação Trabalho 1,20x1,37 Plus", "linha": "Plus", "larg": 1.2, "prof": 1.37, "alt": 0.75, "preco_base": 694.1, "preco_final": 876.39}, {"codigo": "1856", "produto": "Estação Trabalho 1,20x1,50 Plus", "linha": "Plus", "larg": 1.2, "prof": 1.5, "alt": 0.75, "preco_base": 727.15, "preco_final": 918.12}, {"codigo": "2822", "produto": "Estação Trabalho 1,20x1,60 Plus", "linha": "Plus", "larg": 1.2, "prof": 1.6, "alt": 0.75, "preco_base": 760.21, "preco_final": 959.86}, {"codigo": "2823", "produto": "Estação Trabalho 1,30x1,30 Plus", "linha": "Plus", "larg": 1.3, "prof": 1.3, "alt": 0.75, "preco_base": 699.37, "preco_final": 883.05}, {"codigo": "2824", "produto": "Estação Trabalho 1,30x1,37 Plus", "linha": "Plus", "larg": 1.3, "prof": 1.37, "alt": 0.75, "preco_base": 727.15, "preco_final": 918.12}, {"codigo": "2825", "produto": "Estação Trabalho 1,30x1,50 Plus", "linha": "Plus", "larg": 1.3, "prof": 1.5, "alt": 0.75, "preco_base": 760.21, "preco_final": 959.86}, {"codigo": "2826", "produto": "Estação Trabalho 1,30x1,60 Plus", "linha": "Plus", "larg": 1.3, "prof": 1.6, "alt": 0.75, "preco_base": 776.74, "preco_final": 980.73}, {"codigo": "2827", "produto": "Estação Trabalho 1,37x1,37 Plus", "linha": "Plus", "larg": 1.37, "prof": 1.37, "alt": 0.75, "preco_base": 743.69, "preco_final": 939.0}, {"codigo": "2828", "produto": "Estação Trabalho 1,37x1,50 Plus", "linha": "Plus", "larg": 1.37, "prof": 1.5, "alt": 0.75, "preco_base": 776.74, "preco_final": 980.73}, {"codigo": "2829", "produto": "Estação Trabalho 1,37x1,60 Plus", "linha": "Plus", "larg": 1.37, "prof": 1.6, "alt": 0.75, "preco_base": 809.79, "preco_final": 1022.46}, {"codigo": "1857", "produto": "Estação Trabalho 1,50x1,50 Plus", "linha": "Plus", "larg": 1.5, "prof": 1.5, "alt": 0.75, "preco_base": 809.94, "preco_final": 1022.65}, {"codigo": "2830", "produto": "Estação Trabalho 1,50x1,60 Plus", "linha": "Plus", "larg": 1.5, "prof": 1.6, "alt": 0.75, "preco_base": 842.84, "preco_final": 1064.19}, {"codigo": "2831", "produto": "Estação Trabalho 1,60x1,60 Plus", "linha": "Plus", "larg": 1.6, "prof": 1.6, "alt": 0.75, "preco_base": 875.89, "preco_final": 1105.92}, {"codigo": "2832", "produto": "Estação Trabalho 1,20x1,20 Pé Painel Plus", "linha": "Plus", "larg": 1.2, "prof": 1.2, "alt": 0.75, "preco_base": 626.95, "preco_final": 791.6}, {"codigo": "2833", "produto": "Estação Trabalho 1,30Ex1,20D Pé Painel Plus", "linha": "Plus", "larg": 1.2, "prof": 1.3, "alt": 0.75, "preco_base": 651.06, "preco_final": 822.05}, {"codigo": "5919", "produto": "Estação Trabalho 1,30Dx1,20E Pé Painel Plus", "linha": "Plus", "larg": 1.2, "prof": 1.3, "alt": 0.75, "preco_base": 651.06, "preco_final": 822.05}, {"codigo": "2834", "produto": "Estação Trabalho 1,37Ex1,20D Pé Painel Plus", "linha": "Plus", "larg": 1.2, "prof": 1.37, "alt": 0.75, "preco_base": 675.18, "preco_final": 852.5}, {"codigo": "5920", "produto": "Estação Trabalho 1,37Dx1,20E Pé Painel Plus", "linha": "Plus", "larg": 1.2, "prof": 1.37, "alt": 0.75, "preco_base": 675.18, "preco_final": 852.5}, {"codigo": "2835", "produto": "Estação Trabalho 1,50Ex1,20D Pé Painel Plus", "linha": "Plus", "larg": 1.2, "prof": 1.5, "alt": 0.75, "preco_base": 707.32, "preco_final": 893.08}, {"codigo": "5921", "produto": "Estação Trabalho 1,50Dx1,20E Pé Painel Plus", "linha": "Plus", "larg": 1.2, "prof": 1.5, "alt": 0.75, "preco_base": 707.32, "preco_final": 893.08}, {"codigo": "2836", "produto": "Estação Trabalho 1,60Ex1,20D Pé Painel Plus", "linha": "Plus", "larg": 1.2, "prof": 1.6, "alt": 0.75, "preco_base": 739.47, "preco_final": 933.68}, {"codigo": "5922", "produto": "Estação Trabalho 1,60Dx1,20E Pé Painel Plus", "linha": "Plus", "larg": 1.2, "prof": 1.6, "alt": 0.75, "preco_base": 739.47, "preco_final": 933.68}, {"codigo": "2837", "produto": "Estação Trabalho 1,30x1,30 Pé Painel Plus", "linha": "Plus", "larg": 1.3, "prof": 1.3, "alt": 0.75, "preco_base": 675.18, "preco_final": 852.5}, {"codigo": "2838", "produto": "Estação Trabalho 1,37Ex1,30D Pé Painel Plus", "linha": "Plus", "larg": 1.3, "prof": 1.37, "alt": 0.75, "preco_base": 707.32, "preco_final": 893.08}, {"codigo": "5923", "produto": "Estação Trabalho 1,37Dx1,30E Pé Painel Plus", "linha": "Plus", "larg": 1.3, "prof": 1.37, "alt": 0.75, "preco_base": 707.32, "preco_final": 893.08}, {"codigo": "2839", "produto": "Estação Trabalho 1,50Ex1,30D Pé Painel Plus", "linha": "Plus", "larg": 1.3, "prof": 1.5, "alt": 0.75, "preco_base": 739.47, "preco_final": 933.68}, {"codigo": "5924", "produto": "Estação Trabalho 1,50Dx1,30E Pé Painel Plus", "linha": "Plus", "larg": 1.3, "prof": 1.5, "alt": 0.75, "preco_base": 739.47, "preco_final": 933.68}, {"codigo": "2840", "produto": "Estação Trabalho 1,60Ex1,30D Pé Painel Plus", "linha": "Plus", "larg": 1.3, "prof": 1.6, "alt": 0.75, "preco_base": 755.55, "preco_final": 953.98}, {"codigo": "5925", "produto": "Estação Trabalho 1,60Dx1,30E Pé Painel Plus", "linha": "Plus", "larg": 1.3, "prof": 1.6, "alt": 0.75, "preco_base": 755.55, "preco_final": 953.98}, {"codigo": "2841", "produto": "Estação Trabalho 1,37x1,37 Pé Painel Plus", "linha": "Plus", "larg": 1.37, "prof": 1.37, "alt": 0.75, "preco_base": 723.4, "preco_final": 913.38}, {"codigo": "2842", "produto": "Estação Trabalho 1,50Ex1,37D Pé Painel Plus", "linha": "Plus", "larg": 1.37, "prof": 1.5, "alt": 0.75, "preco_base": 755.55, "preco_final": 953.98}, {"codigo": "5926", "produto": "Estação Trabalho 1,50Dx1,37E Pé Painel Plus", "linha": "Plus", "larg": 1.37, "prof": 1.5, "alt": 0.75, "preco_base": 755.55, "preco_final": 953.98}, {"codigo": "2843", "produto": "Estação Trabalho 1,60Ex1,37D Pé Painel Plus", "linha": "Plus", "larg": 1.37, "prof": 1.6, "alt": 0.75, "preco_base": 787.7, "preco_final": 994.57}, {"codigo": "5927", "produto": "Estação Trabalho 1,60Dx1,37E Pé Painel Plus", "linha": "Plus", "larg": 1.37, "prof": 1.6, "alt": 0.75, "preco_base": 787.7, "preco_final": 994.57}, {"codigo": "2844", "produto": "Estação Trabalho 1,50x1,50 Pé Painel Plus", "linha": "Plus", "larg": 1.5, "prof": 1.5, "alt": 0.75, "preco_base": 787.7, "preco_final": 994.57}, {"codigo": "2845", "produto": "Estação Trabalho 1,60Ex1,50D Pé Painel Plus", "linha": "Plus", "larg": 1.5, "prof": 1.6, "alt": 0.75, "preco_base": 819.86, "preco_final": 1035.17}, {"codigo": "5928", "produto": "Estação Trabalho 1,60Dx1,50E Pé Painel Plus", "linha": "Plus", "larg": 1.5, "prof": 1.6, "alt": 0.75, "preco_base": 819.86, "preco_final": 1035.17}, {"codigo": "2846", "produto": "Estação Trabalho 1,60x1,60 Pé Painel Plus", "linha": "Plus", "larg": 1.6, "prof": 1.6, "alt": 0.75, "preco_base": 852.0, "preco_final": 1075.76}, {"codigo": "1847", "produto": "Divisória Estação Trabalho Plus/Diam", "linha": "Plus", "larg": 1.2, "prof": null, "alt": 0.4, "preco_base": 128.6, "preco_final": 162.38}, {"codigo": "1387", "produto": "Divisória Estação Trabalho Plus/Diam", "linha": "Plus", "larg": 1.3, "prof": null, "alt": 0.4, "preco_base": 136.64, "preco_final": 172.53}, {"codigo": "185", "produto": "Divisória Estação Trabalho Plus/Diam", "linha": "Plus", "larg": 1.37, "prof": null, "alt": 0.4, "preco_base": 144.68, "preco_final": 182.68}, {"codigo": "1848", "produto": "Divisória Estação Trabalho Plus/Diam", "linha": "Plus", "larg": 1.5, "prof": null, "alt": 0.4, "preco_base": 152.72, "preco_final": 192.83}, {"codigo": "1388", "produto": "Divisória Estação Trabalho Plus/Diam", "linha": "Plus", "larg": 1.6, "prof": null, "alt": 0.4, "preco_base": 161.65, "preco_final": 204.11}, {"codigo": "4390", "produto": "Divisória Estação Trabalho Plus/Diam", "linha": "Plus", "larg": 1.8, "prof": null, "alt": 0.4, "preco_base": 176.83, "preco_final": 223.27}, {"codigo": "1222", "produto": "Divisória Reta Estação Trabalho Plus/Diam", "linha": "Plus", "larg": 1.2, "prof": null, "alt": 0.4, "preco_base": 131.82, "preco_final": 166.44}, {"codigo": "1223", "produto": "Divisória Reta Estação Trabalho Plus/Diam", "linha": "Plus", "larg": 1.3, "prof": null, "alt": 0.4, "preco_base": 139.86, "preco_final": 176.59}, {"codigo": "1224", "produto": "Divisória Reta Estação Trabalho Plus/Diam", "linha": "Plus", "larg": 1.37, "prof": null, "alt": 0.4, "preco_base": 144.68, "preco_final": 182.68}, {"codigo": "1225", "produto": "Divisória Reta Estação Trabalho Plus/Diam", "linha": "Plus", "larg": 1.5, "prof": null, "alt": 0.4, "preco_base": 155.93, "preco_final": 196.89}, {"codigo": "1226", "produto": "Divisória Reta Estação Trabalho Plus/Diam", "linha": "Plus", "larg": 1.6, "prof": null, "alt": 0.4, "preco_base": 163.97, "preco_final": 207.03}, {"codigo": "3481", "produto": "Divisória Reta Estação Trabalho Plus/Diam", "linha": "Plus", "larg": 1.8, "prof": null, "alt": 0.4, "preco_base": 180.05, "preco_final": 227.33}, {"codigo": "4392", "produto": "Divisória Lateral Estação Trabalho Plus/Diam", "linha": "Plus", "larg": 0.6, "prof": null, "alt": 0.4, "preco_base": 75.56, "preco_final": 95.4}, {"codigo": "4394", "produto": "Divisória Lateral Estação Trabalho Plus/Diam", "linha": "Plus", "larg": 0.7, "prof": null, "alt": 0.4, "preco_base": 81.98, "preco_final": 103.51}, {"codigo": "1858", "produto": "Conexão Meia Lua Estação Plus", "linha": "Plus", "larg": 1.2, "prof": 0.6, "alt": 0.75, "preco_base": 236.32, "preco_final": 298.39}, {"codigo": "6277", "produto": "Refeitorio Banco Redondo 2,70 Plus", "linha": "Plus", "larg": 2.7, "prof": 1.4, "alt": 0.75, "preco_base": 2444.52, "preco_final": 3086.52}, {"codigo": "6269", "produto": "Refeitorio Banco Redondo 2,40 Plus", "linha": "Plus", "larg": 2.4, "prof": 1.4, "alt": 0.75, "preco_base": 1974.7, "preco_final": 2493.3}, {"codigo": "6262", "produto": "Refeitorio Banco Redondo 1,80 Plus", "linha": "Plus", "larg": 1.8, "prof": 1.4, "alt": 0.75, "preco_base": 1478.58, "preco_final": 1866.89}, {"codigo": "6256", "produto": "Refeitorio Banco Redondo 1,20 Plus", "linha": "Plus", "larg": 1.2, "prof": 1.4, "alt": 0.75, "preco_base": 977.68, "preco_final": 1234.45}, {"codigo": "202", "produto": "Refeitorio Completo 2,70 Plus", "linha": "Plus", "larg": 2.7, "prof": 1.4, "alt": 0.75, "preco_base": 2700.62, "preco_final": 3409.87}, {"codigo": "2041", "produto": "Refeitorio Completo 2,40 Plus", "linha": "Plus", "larg": 2.4, "prof": 1.4, "alt": 0.75, "preco_base": 2553.92, "preco_final": 3224.64}, {"codigo": "2040", "produto": "Refeitorio Completo 1,80 Plus", "linha": "Plus", "larg": 1.8, "prof": 1.4, "alt": 0.75, "preco_base": 1579.85, "preco_final": 1994.76}, {"codigo": "2039", "produto": "Refeitorio Completo 1,20 Plus", "linha": "Plus", "larg": 1.2, "prof": 1.4, "alt": 0.75, "preco_base": 1326.42, "preco_final": 1674.77}, {"codigo": "2854", "produto": "Mesa Ref. Individual 2,70 Plus", "linha": "Plus", "larg": 2.7, "prof": 0.8, "alt": 0.75, "preco_base": 1352.38, "preco_final": 1707.55}, {"codigo": "2306", "produto": "Banco Ref. Individual 2,70 Plus", "linha": "Plus", "larg": 2.7, "prof": 0.3, "alt": 0.45, "preco_base": 852.94, "preco_final": 1076.95}, {"codigo": "3076", "produto": "Mesa Ref. Individual 2,40 Plus", "linha": "Plus", "larg": 2.4, "prof": 0.8, "alt": 0.75, "preco_base": 1278.29, "preco_final": 1614.0}, {"codigo": "3079", "produto": "Banco Ref. Individual 2,40 Plus", "linha": "Plus", "larg": 2.4, "prof": 0.3, "alt": 0.45, "preco_base": 770.89, "preco_final": 973.35}, {"codigo": "11031", "produto": "Mesa Ref. Individual 2,00 Plus", "linha": "Plus", "larg": 2, "prof": 0.8, "alt": 0.75, "preco_base": 906.12, "preco_final": 1144.09}, {"codigo": "11032", "produto": "Banco Ref. Individual 2,00 Plus", "linha": "Plus", "larg": 2, "prof": 0.3, "alt": 0.45, "preco_base": 389.49, "preco_final": 491.78}, {"codigo": "3077", "produto": "Mesa Ref. Individual 1,80 Plus", "linha": "Plus", "larg": 1.8, "prof": 0.8, "alt": 0.75, "preco_base": 776.31, "preco_final": 980.18}, {"codigo": "3080", "produto": "Banco Ref. Individual 1,80 Plus", "linha": "Plus", "larg": 1.8, "prof": 0.3, "alt": 0.45, "preco_base": 333.96, "preco_final": 421.67}, {"codigo": "3078", "produto": "Mesa Ref. Individual 1,20 Plus", "linha": "Plus", "larg": 1.2, "prof": 0.8, "alt": 0.75, "preco_base": 662.48, "preco_final": 836.46}, {"codigo": "3081", "produto": "Banco Ref. Individual 1,20 Plus", "linha": "Plus", "larg": 1.2, "prof": 0.3, "alt": 0.45, "preco_base": 312.3, "preco_final": 394.31}, {"codigo": "2121", "produto": "Balcao de Atendimento Plus", "linha": "Plus", "larg": 1.37, "prof": 0.6, "alt": 1.12, "preco_base": 1269.97, "preco_final": 1603.5}, {"codigo": "2119", "produto": "Balcao de Atendimento Plus", "linha": "Plus", "larg": null, "prof": 0.6, "alt": 1.12, "preco_base": 1077.06, "preco_final": 1359.93}, {"codigo": "259", "produto": "Balcao Atend. Reto 0,80 Plus", "linha": "Plus", "larg": 0.8, "prof": 0.6, "alt": 1.12, "preco_base": 482.27, "preco_final": 608.92}, {"codigo": "201", "produto": "Balcao Atend. Reto 0,90 Plus", "linha": "Plus", "larg": 0.9, "prof": 0.6, "alt": 1.12, "preco_base": 514.42, "preco_final": 649.52}, {"codigo": "239", "produto": "Balcao Atend. Reto 1,00 Plus", "linha": "Plus", "larg": 1, "prof": 0.6, "alt": 1.12, "preco_base": 546.56, "preco_final": 690.11}, {"codigo": "3988", "produto": "Balcao Atend. Reto 1,20 Plus", "linha": "Plus", "larg": 1.2, "prof": 0.6, "alt": 1.12, "preco_base": 626.95, "preco_final": 791.6}, {"codigo": "3989", "produto": "Balcao Atend. Reto 1,37 Plus", "linha": "Plus", "larg": 1.37, "prof": 0.6, "alt": 1.12, "preco_base": 683.21, "preco_final": 862.65}, {"codigo": "5397", "produto": "Cabine Telemarketing Completa Plus", "linha": "Plus", "larg": 0.83, "prof": 0.81, "alt": 1.26, "preco_base": 486.26, "preco_final": 613.97}, {"codigo": "5398", "produto": "Cabine Telemarketing Completa Plus", "linha": "Plus", "larg": 0.98, "prof": 0.81, "alt": 1.26, "preco_base": 513.99, "preco_final": 648.98}, {"codigo": "5399", "produto": "Cabine Telemarketing Completa Plus", "linha": "Plus", "larg": 1.23, "prof": 0.81, "alt": 1.26, "preco_base": 559.82, "preco_final": 706.84}, {"codigo": "5415", "produto": "Painel Frontal Superior Plus", "linha": "Plus", "larg": 0.8, "prof": null, "alt": 0.35, "preco_base": 40.85, "preco_final": 51.57}, {"codigo": "5417", "produto": "Painel Frontal Superior Plus", "linha": "Plus", "larg": 0.95, "prof": null, "alt": 0.35, "preco_base": 48.57, "preco_final": 61.33}, {"codigo": "5419", "produto": "Painel Frontal Superior Plus", "linha": "Plus", "larg": 1.2, "prof": null, "alt": 0.35, "preco_base": 60.26, "preco_final": 76.09}, {"codigo": "5421", "produto": "Painel Lateral Cabine Telemark Plus", "linha": "Plus", "larg": 0.81, "prof": null, "alt": 1.26, "preco_base": 140.9, "preco_final": 177.9}, {"codigo": "5423", "produto": "Tampo da Mesa e Saia Plus", "linha": "Plus", "larg": 0.8, "prof": 0.68, "alt": null, "preco_base": 144.37, "preco_final": 182.29}, {"codigo": "5425", "produto": "Tampo da Mesa e Saia Plus", "linha": "Plus", "larg": 0.95, "prof": 0.68, "alt": null, "preco_base": 174.29, "preco_final": 220.06}, {"codigo": "5427", "produto": "Tampo da Mesa e Saia Plus", "linha": "Plus", "larg": 1.2, "prof": 0.68, "alt": null, "preco_base": 209.65, "preco_final": 264.71}, {"codigo": "5180", "produto": "Cabine Atendimento Completa Plus", "linha": "Plus", "larg": 0.83, "prof": 1.15, "alt": 1.26, "preco_base": 563.12, "preco_final": 711.01}, {"codigo": "5388", "produto": "Cabine Atendimento Completa Plus", "linha": "Plus", "larg": 0.98, "prof": 1.15, "alt": 1.26, "preco_base": 585.58, "preco_final": 739.37}, {"codigo": "5389", "produto": "Cabine Atendimento Completa Plus", "linha": "Plus", "larg": 1.23, "prof": 1.15, "alt": 1.26, "preco_base": 622.4, "preco_final": 785.86}, {"codigo": "5407", "produto": "Painel Lateral Cabine Atendim Plus", "linha": "Plus", "larg": 1.15, "prof": null, "alt": 1.26, "preco_base": 192.24, "preco_final": 242.73}, {"codigo": "5409", "produto": "Tampo da Mesa e Saia Plus", "linha": "Plus", "larg": 0.8, "prof": 0.7, "alt": null, "preco_base": 146.04, "preco_final": 184.39}, {"codigo": "5411", "produto": "Tampo da Mesa e Saia Plus", "linha": "Plus", "larg": 0.95, "prof": 0.7, "alt": null, "preco_base": 168.25, "preco_final": 212.43}, {"codigo": "5413", "produto": "Tampo da Mesa e Saia Plus", "linha": "Plus", "larg": 1.2, "prof": 0.7, "alt": null, "preco_base": 205.07, "preco_final": 258.93}, {"codigo": "1411", "produto": "Armário Diretor Prata Top", "linha": "PRATA", "larg": 0.81, "prof": 0.41, "alt": 1.6, "preco_base": 735.02, "preco_final": 928.05}, {"codigo": "6937", "produto": "Armário Diretor 1 Porta Prata Top", "linha": "PRATA", "larg": 0.42, "prof": 0.41, "alt": 1.6, "preco_base": 481.03, "preco_final": 607.36}, {"codigo": "1412", "produto": "Armário Executivo Prata Top", "linha": "PRATA", "larg": 0.81, "prof": 0.41, "alt": 1.6, "preco_base": 629.79, "preco_final": 795.19}, {"codigo": "1413", "produto": "Armário Estante Prata Top", "linha": "PRATA", "larg": 0.81, "prof": 0.41, "alt": 1.6, "preco_base": 501.19, "preco_final": 632.82}, {"codigo": "1414", "produto": "Armário Secretária Prata Top", "linha": "PRATA", "larg": 0.81, "prof": 0.41, "alt": 0.75, "preco_base": 401.31, "preco_final": 506.71}, {"codigo": "7003", "produto": "Credenza com Vão Prata Top", "linha": "PRATA", "larg": 1.29, "prof": 0.41, "alt": 0.75, "preco_base": 630.82, "preco_final": 796.49}, {"codigo": "7005", "produto": "Credenza 2 Pasta Susp Prata Top", "linha": "PRATA", "larg": 1.29, "prof": 0.41, "alt": 0.75, "preco_base": 843.67, "preco_final": 1065.23}, {"codigo": "8882", "produto": "Credenza 3 Portas Prata Top", "linha": "PRATA", "larg": 1.3, "prof": 0.41, "alt": 0.75, "preco_base": 768.36, "preco_final": 970.15}, {"codigo": "1415", "produto": "Arquivo Pasta Suspensa Prata Top", "linha": "PRATA", "larg": 0.5, "prof": 0.46, "alt": 1.43, "preco_base": 768.36, "preco_final": 970.15}, {"codigo": "7136", "produto": "Arquivo Pasta Susp Baixo Prata Top", "linha": "PRATA", "larg": 0.5, "prof": 0.46, "alt": 0.75, "preco_base": 434.54, "preco_final": 548.66}, {"codigo": "1336", "produto": "Gavet Volante 2 Gav/Pasta Susp Prata", "linha": "PRATA", "larg": 0.52, "prof": 0.48, "alt": 0.64, "preco_base": 506.88, "preco_final": 640.0}, {"codigo": "1764", "produto": "Gaveteiro Volante 4 Gavetas Prata", "linha": "PRATA", "larg": 0.52, "prof": 0.48, "alt": 0.64, "preco_base": 557.57, "preco_final": 704.0}, {"codigo": "440", "produto": "Gaveteiro Volante 3 Gav/Vão Prata", "linha": "PRATA", "larg": 0.4, "prof": 0.42, "alt": 0.61, "preco_base": 318.78, "preco_final": 402.5}, {"codigo": "6081", "produto": "Gaveteiro Volante 3 Gav/Vão Prata", "linha": "PRATA", "larg": 0.4, "prof": 0.42, "alt": 0.61, "preco_base": 318.79, "preco_final": 402.51}, {"codigo": "257", "produto": "Gaveteiro Volante 5 Gavetas Prata", "linha": "PRATA", "larg": 0.4, "prof": 0.42, "alt": 0.61, "preco_base": 354.51, "preco_final": 447.61}, {"codigo": "6083", "produto": "Gaveteiro Volante 5 Gavetas Prata", "linha": "PRATA", "larg": 0.4, "prof": 0.42, "alt": 0.61, "preco_base": 354.5, "preco_final": 447.6}, {"codigo": "7385", "produto": "Gaveteiro Fixo 1 Gavetas Prata", "linha": "PRATA", "larg": 0.37, "prof": 0.41, "alt": 0.11, "preco_base": 92.73, "preco_final": 117.09}, {"codigo": "83", "produto": "Gaveteiro Fixo 2 Gavetas Prata", "linha": "PRATA", "larg": 0.37, "prof": 0.41, "alt": 0.25, "preco_base": 132.46, "preco_final": 167.25}, {"codigo": "84", "produto": "Gaveteiro Fixo 3 Gavetas Prata", "linha": "PRATA", "larg": 0.37, "prof": 0.41, "alt": 0.34, "preco_base": 168.2, "preco_final": 212.38}, {"codigo": "667", "produto": "Mesa Auxiliar Prata", "linha": "PRATA", "larg": 0.8, "prof": 0.6, "alt": 0.75, "preco_base": 275.54, "preco_final": 347.9}, {"codigo": "1554", "produto": "Mesa Recepçao Prata", "linha": "PRATA", "larg": 1, "prof": 0.6, "alt": 0.75, "preco_base": 296.07, "preco_final": 373.82}, {"codigo": "1553", "produto": "Mesa Secretária Prata", "linha": "PRATA", "larg": 1.2, "prof": 0.6, "alt": 0.75, "preco_base": 317.59, "preco_final": 400.99}, {"codigo": "1552", "produto": "Mesa Gerente Prata", "linha": "PRATA", "larg": 1.37, "prof": 0.6, "alt": 0.75, "preco_base": 336.51, "preco_final": 424.89}, {"codigo": "1551", "produto": "Mesa Diretor Prata", "linha": "PRATA", "larg": 1.6, "prof": 0.6, "alt": 0.75, "preco_base": 364.17, "preco_final": 459.81}, {"codigo": "203", "produto": "Mesa Auxiliar 0,80 P Prata", "linha": "PRATA", "larg": 0.8, "prof": 0.6, "alt": 0.75, "preco_base": 237.83, "preco_final": 300.29}, {"codigo": "2118", "produto": "Mesa Recepçao 1,00 PP Prata", "linha": "PRATA", "larg": 1, "prof": 0.6, "alt": 0.75, "preco_base": 264.25, "preco_final": 333.65}, {"codigo": "2117", "produto": "Mesa Secretária 1,20 PP Prata", "linha": "PRATA", "larg": 1.2, "prof": 0.6, "alt": 0.75, "preco_base": 289.52, "preco_final": 365.56}, {"codigo": "2116", "produto": "Mesa Gerente 1,37x0,60 PP Prata", "linha": "PRATA", "larg": 1.37, "prof": 0.6, "alt": 0.75, "preco_base": 322.29, "preco_final": 406.94}, {"codigo": "7106", "produto": "Mesa Gerente 1,37x0,70 PP Prata", "linha": "PRATA", "larg": 1.37, "prof": 0.7, "alt": 0.75, "preco_base": 365.51, "preco_final": 461.5}, {"codigo": "2115", "produto": "Mesa Diretor 1,60X0,60 PP Prata", "linha": "PRATA", "larg": 1.6, "prof": 0.6, "alt": 0.75, "preco_base": 354.24, "preco_final": 447.27}, {"codigo": "7104", "produto": "Mesa Diretor 1,60X0,70 PP Prata", "linha": "PRATA", "larg": 1.6, "prof": 0.7, "alt": 0.75, "preco_base": 387.82, "preco_final": 489.67}, {"codigo": "7008", "produto": "Mesa Aux Apoio 0,80 Pé Pain Prata", "linha": "PRATA", "larg": 0.8, "prof": 0.45, "alt": 0.75, "preco_base": 196.75, "preco_final": 248.43}, {"codigo": "7010", "produto": "Mesa Aux Apoio 1,00 Pé Pain Prata", "linha": "PRATA", "larg": 1, "prof": 0.45, "alt": 0.75, "preco_base": 226.23, "preco_final": 285.64}, {"codigo": "2019", "produto": "Conexão Leque 60x60 Prata", "linha": "PRATA", "larg": 0.6, "prof": 0.6, "alt": null, "preco_base": 95.9, "preco_final": 121.09}, {"codigo": "608", "produto": "Conexão Leque 70x60 Prata", "linha": "PRATA", "larg": 0.7, "prof": 0.6, "alt": null, "preco_base": 116.63, "preco_final": 147.26}, {"codigo": "863", "produto": "Mesa Lap Top Gaveta Prata", "linha": "PRATA", "larg": 1, "prof": 0.5, "alt": 0.75, "preco_base": 249.43, "preco_final": 314.93}, {"codigo": "862", "produto": "Mesa Lap Top Teclado Prata", "linha": "PRATA", "larg": 0.7, "prof": 0.5, "alt": 0.75, "preco_base": 211.46, "preco_final": 267.0}, {"codigo": "864", "produto": "Conexão Lap Top 50X50 Prata", "linha": "PRATA", "larg": 0.5, "prof": 0.5, "alt": null, "preco_base": 64.23, "preco_final": 81.1}, {"codigo": "39", "produto": "Mesa Datilografia Prata", "linha": "PRATA", "larg": 0.63, "prof": 0.5, "alt": 0.75, "preco_base": 308.28, "preco_final": 389.25}, {"codigo": "7012", "produto": "Mesa Reun Redonda 0,90 PP Prata", "linha": "PRATA", "larg": 0.9, "prof": 0.9, "alt": 0.75, "preco_base": 357.38, "preco_final": 451.24}, {"codigo": "7016", "produto": "Mesa Reun Redonda 1,10 PP Prata", "linha": "PRATA", "larg": 1.1, "prof": 1.1, "alt": 0.75, "preco_base": 372.3, "preco_final": 470.08}, {"codigo": "8506", "produto": "Mesa Reun Redonda 1,20 PP Prata", "linha": "PRATA", "larg": 1.2, "prof": 1.2, "alt": 0.75, "preco_base": 396.51, "preco_final": 500.65}, {"codigo": "8502", "produto": "Mesa Reun Redonda 0,90 Prata", "linha": "PRATA", "larg": 0.9, "prof": 0.9, "alt": 0.75, "preco_base": 427.79, "preco_final": 540.14}, {"codigo": "8503", "produto": "Mesa Reun Redonda 1,10 Prata", "linha": "PRATA", "larg": 1.1, "prof": 1.1, "alt": 0.75, "preco_base": 472.23, "preco_final": 596.25}, {"codigo": "8504", "produto": "Mesa Reun Redonda 1,20 Prata", "linha": "PRATA", "larg": 1.2, "prof": 1.2, "alt": 0.75, "preco_base": 496.66, "preco_final": 627.09}, {"codigo": "8509", "produto": "Mesa Reun Retangular 1,80 Prata", "linha": "PRATA", "larg": 1.8, "prof": 0.9, "alt": 0.75, "preco_base": 636.05, "preco_final": 803.09}, {"codigo": "8510", "produto": "Mesa Reun Retangular 2,00 Prata", "linha": "PRATA", "larg": 2, "prof": 0.9, "alt": 0.75, "preco_base": 668.27, "preco_final": 843.77}, {"codigo": "8511", "produto": "Mesa Reun Retangular 2,40 Prata", "linha": "PRATA", "larg": 2.4, "prof": 0.9, "alt": 0.75, "preco_base": 726.43, "preco_final": 917.21}, {"codigo": "7021", "produto": "Mesa Reun Retangular 1,80 PP Prata", "linha": "PRATA", "larg": 1.8, "prof": 0.9, "alt": 0.75, "preco_base": 495.91, "preco_final": 626.15}, {"codigo": "7023", "produto": "Mesa ReunRetangular 2,00 PP Prata", "linha": "PRATA", "larg": 2, "prof": 0.9, "alt": 0.75, "preco_base": 522.0, "preco_final": 659.09}, {"codigo": "8507", "produto": "Mesa ReunRetangular 2,40 PP Prata", "linha": "PRATA", "larg": 2.4, "prof": 0.9, "alt": 0.75, "preco_base": 549.48, "preco_final": 693.79}, {"codigo": "1012", "produto": "Mesa Estação Trabalho \"L\" Prata", "linha": "PRATA", "larg": 1.2, "prof": 1.2, "alt": 0.75, "preco_base": 570.16, "preco_final": 719.9}, {"codigo": "2853", "produto": "Mesa Estação Trabalho \"L\" Prata", "linha": "PRATA", "larg": 1.2, "prof": 1.37, "alt": 0.75, "preco_base": 611.47, "preco_final": 772.06}, {"codigo": "1013", "produto": "Mesa Estação Trabalho \"L\" Prata", "linha": "PRATA", "larg": 1.2, "prof": 1.5, "alt": 0.75, "preco_base": 644.52, "preco_final": 813.79}, {"codigo": "1968", "produto": "Mesa Estação Trabalho \"L\" Prata", "linha": "PRATA", "larg": 1.37, "prof": 1.37, "alt": 0.75, "preco_base": 644.52, "preco_final": 813.79}, {"codigo": "1014", "produto": "Mesa Estação Trabalho \"L\" Prata", "linha": "PRATA", "larg": 1.5, "prof": 1.5, "alt": 0.75, "preco_base": 747.94, "preco_final": 944.37}, {"codigo": "1847", "produto": "Divisória Estação Trabalho Plus/Diam", "linha": "PRATA", "larg": 1.2, "prof": null, "alt": 0.4, "preco_base": 128.6, "preco_final": 162.38}, {"codigo": "185", "produto": "Divisória Estação Trabalho Plus/Diam", "linha": "PRATA", "larg": 1.37, "prof": null, "alt": 0.4, "preco_base": 144.68, "preco_final": 182.68}, {"codigo": "1848", "produto": "Divisória Estação Trabalho Plus/Diam", "linha": "PRATA", "larg": 1.5, "prof": null, "alt": 0.4, "preco_base": 152.72, "preco_final": 192.83}, {"codigo": "1017", "produto": "Conexão Meia Lua Est Trab Prata", "linha": "PRATA", "larg": 1.2, "prof": 0.6, "alt": 0.75, "preco_base": 198.32, "preco_final": 250.4}, {"codigo": "1746", "produto": "Cabine Telemarketing Completa Prata", "linha": "PRATA", "larg": 0.83, "prof": 0.6, "alt": 1.15, "preco_base": 360.67, "preco_final": 455.39}, {"codigo": "1747", "produto": "Cabine Telemarketing Completa Prata", "linha": "PRATA", "larg": 0.98, "prof": 0.6, "alt": 1.15, "preco_base": 384.03, "preco_final": 484.89}, {"codigo": "1748", "produto": "Cabine Telemarketing Completa Prata", "linha": "PRATA", "larg": 1.23, "prof": 0.6, "alt": 1.15, "preco_base": 422.73, "preco_final": 533.75}, {"codigo": "1749", "produto": "Painel Frontal Superior Prata", "linha": "PRATA", "larg": 0.8, "prof": null, "alt": 0.35, "preco_base": 40.85, "preco_final": 51.57}, {"codigo": "1750", "produto": "Painel Frontal Superior Prata", "linha": "PRATA", "larg": 0.95, "prof": null, "alt": 0.35, "preco_base": 48.57, "preco_final": 61.33}, {"codigo": "1751", "produto": "Painel Frontal Superior Prata", "linha": "PRATA", "larg": 1.2, "prof": null, "alt": 0.35, "preco_base": 60.26, "preco_final": 76.09}, {"codigo": "1752", "produto": "Painel Lat. Cabine Telemarketing Prata", "linha": "PRATA", "larg": 0.6, "prof": null, "alt": 1.15, "preco_base": 111.23, "preco_final": 140.45}, {"codigo": "1753", "produto": "Tampo da Mesa e Saia Prata", "linha": "PRATA", "larg": 0.8, "prof": 0.58, "alt": null, "preco_base": 136.66, "preco_final": 172.55}, {"codigo": "1754", "produto": "Tampo da Mesa e Saia Prata", "linha": "PRATA", "larg": 0.95, "prof": 0.58, "alt": null, "preco_base": 155.69, "preco_final": 196.58}, {"codigo": "1755", "produto": "Tampo da Mesa e Saia Prata", "linha": "PRATA", "larg": 1.2, "prof": 0.58, "alt": null, "preco_base": 186.55, "preco_final": 235.54}, {"codigo": "76", "produto": "Estante Livro Alta Prata", "linha": "PRATA", "larg": 0.6, "prof": 0.28, "alt": 1.82, "preco_base": 365.97, "preco_final": 462.08}, {"codigo": "77", "produto": "Estante Livro Média Prata", "linha": "PRATA", "larg": 0.6, "prof": 0.28, "alt": 1.24, "preco_base": 260.7, "preco_final": 329.17}, {"codigo": "78", "produto": "Estante Livro Baixa Prata", "linha": "PRATA", "larg": 0.6, "prof": 0.28, "alt": 0.66, "preco_base": 163.69, "preco_final": 206.68}, {"codigo": "852", "produto": "Armario Multiuso Prata", "linha": "PRATA", "larg": 0.46, "prof": 0.44, "alt": 1.57, "preco_base": 458.56, "preco_final": 578.99}, {"codigo": "851", "produto": "Suporte Bebedouro Prata", "linha": "PRATA", "larg": 0.46, "prof": 0.44, "alt": 0.82, "preco_base": 256.57, "preco_final": 323.95}, {"codigo": "8247", "produto": "Mesa 0,70 X 0,45 C/ 1 Gaveta Britta", "linha": "PRATA", "larg": 0.7, "prof": 0.45, "alt": 0.75, "preco_base": 256.53, "preco_final": 323.9}, {"codigo": "8256", "produto": "Mesa 1,20 X 0,45 C/ 2 Gavetas Britta", "linha": "PRATA", "larg": 1.2, "prof": 0.45, "alt": 0.75, "preco_base": 375.02, "preco_final": 473.52}, {"codigo": "8887", "produto": "Mesa Gaveta Lateral Britta", "linha": "PRATA", "larg": 1, "prof": 0.45, "alt": 0.75, "preco_base": 237.11, "preco_final": 299.38}, {"codigo": "13381", "produto": "Armário Diretor Pratica", "linha": "PRATICA", "larg": 0.8, "prof": 0.4, "alt": 1.62, "preco_base": 641.42, "preco_final": 809.88}, {"codigo": "13392", "produto": "Armário Executivo Pratica", "linha": "PRATICA", "larg": 0.8, "prof": 0.4, "alt": 1.62, "preco_base": 544.96, "preco_final": 688.08}, {"codigo": "13636", "produto": "Armário Diretor C/ Vão Pratica", "linha": "PRATICA", "larg": 1.29, "prof": 0.4, "alt": 1.62, "preco_base": 842.53, "preco_final": 1063.8}, {"codigo": "13396", "produto": "Armário Secretária Pratica", "linha": "PRATICA", "larg": 0.8, "prof": 0.4, "alt": 0.75, "preco_base": 345.06, "preco_final": 435.69}, {"codigo": "13402", "produto": "Credenza Com Vão Pratica", "linha": "PRATICA", "larg": 1.29, "prof": 0.4, "alt": 0.75, "preco_base": 512.63, "preco_final": 647.26}, {"codigo": "13704", "produto": "Arquivo 4 Gavetas T15 Pratica", "linha": "PRATICA", "larg": 0.465, "prof": 0.45, "alt": 1.23, "preco_base": 697.46, "preco_final": 880.63}, {"codigo": "13707", "produto": "Gaveteiro 4 Gavetas T15 Pratica", "linha": "PRATICA", "larg": 0.42, "prof": 0.4, "alt": 0.6, "preco_base": 394.83, "preco_final": 498.52}, {"codigo": "13414", "produto": "Mesa C/Gaveta 1,20 Pratica", "linha": "PRATICA", "larg": 1.2, "prof": 0.6, "alt": 0.75, "preco_base": 318.85, "preco_final": 402.59}, {"codigo": "13417", "produto": "Mesa C/Gaveta 1,50 Pratica", "linha": "PRATICA", "larg": 1.5, "prof": 0.6, "alt": 0.75, "preco_base": 391.18, "preco_final": 493.91}, {"codigo": "13420", "produto": "Mesa 1,20 Pratica", "linha": "PRATICA", "larg": 1.2, "prof": 0.6, "alt": 0.75, "preco_base": 265.64, "preco_final": 335.41}, {"codigo": "13423", "produto": "Mesa 1,50 Pratica", "linha": "PRATICA", "larg": 1.5, "prof": 0.6, "alt": 0.75, "preco_base": 298.01, "preco_final": 376.28}, {"codigo": "13434", "produto": "Mesa Apoio 0,70 Pratica", "linha": "PRATICA", "larg": 0.7, "prof": 0.4, "alt": 0.75, "preco_base": 127.94, "preco_final": 161.55}, {"codigo": "10518", "produto": "Mesa Auxiliar Eco", "linha": "PRATICA", "larg": 0.8, "prof": 0.6, "alt": 0.75, "preco_base": 262.68, "preco_final": 331.67}, {"codigo": "10519", "produto": "Mesa Recepçao Eco", "linha": "PRATICA", "larg": 1, "prof": 0.6, "alt": 0.75, "preco_base": 284.43, "preco_final": 359.12}, {"codigo": "10520", "produto": "Mesa Secretária Eco", "linha": "PRATICA", "larg": 1.2, "prof": 0.6, "alt": 0.75, "preco_base": 304.59, "preco_final": 384.59}, {"codigo": "10521", "produto": "Mesa Gerente Eco", "linha": "PRATICA", "larg": 1.37, "prof": 0.6, "alt": 0.75, "preco_base": 326.72, "preco_final": 412.52}, {"codigo": "10539", "produto": "Mesa Supervisor Eco", "linha": "PRATICA", "larg": 1.5, "prof": 0.6, "alt": 0.75, "preco_base": 337.73, "preco_final": 426.42}, {"codigo": "10522", "produto": "Mesa Diretor Eco", "linha": "PRATICA", "larg": 1.6, "prof": 0.6, "alt": 0.75, "preco_base": 347.99, "preco_final": 439.38}, {"codigo": "10544", "produto": "Gaveteiro Fixo 2 Gavetas Eco", "linha": "PRATICA", "larg": 0.37, "prof": 0.38, "alt": 0.23, "preco_base": 119.26, "preco_final": 150.58}, {"codigo": "11024", "produto": "Porta Teclado Retrátil Eco", "linha": "PRATICA", "larg": 0.53, "prof": 0.3, "alt": 0.1, "preco_base": 72.27, "preco_final": 91.25}, {"codigo": "11013", "produto": "Mesa Ref. Individual 2,00 Eco", "linha": "PRATICA", "larg": 2, "prof": 0.8, "alt": 0.75, "preco_base": 705.56, "preco_final": 890.86}, {"codigo": "11014", "produto": "Banco Ref. Individual 2,00 Eco", "linha": "PRATICA", "larg": 2, "prof": 0.3, "alt": 0.45, "preco_base": 333.54, "preco_final": 421.14}, {"codigo": "11015", "produto": "Refeitorio Completo 2,00 Eco", "linha": "PRATICA", "larg": 2, "prof": 1.4, "alt": 0.75, "preco_base": 1326.31, "preco_final": 1674.64}, {"codigo": "13385", "produto": "Armário Diretor Pratica", "linha": "PRATICA", "larg": 0.8, "prof": 0.4, "alt": 1.62, "preco_base": 683.44, "preco_final": 862.93}, {"codigo": "13393", "produto": "Armário Executivo Pratica", "linha": "PRATICA", "larg": 0.8, "prof": 0.4, "alt": 1.62, "preco_base": 583.04, "preco_final": 736.16}, {"codigo": "13641", "produto": "Armário Diretor C/ Vão Pratica", "linha": "PRATICA", "larg": 1.29, "prof": 0.4, "alt": 1.62, "preco_base": 865.96, "preco_final": 1093.38}, {"codigo": "13398", "produto": "Armário Secretária Pratica", "linha": "PRATICA", "larg": 0.8, "prof": 0.4, "alt": 0.75, "preco_base": 374.76, "preco_final": 473.19}, {"codigo": "13405", "produto": "Credenza Com Vão Pratica", "linha": "PRATICA", "larg": 1.29, "prof": 0.4, "alt": 0.75, "preco_base": 564.34, "preco_final": 712.55}, {"codigo": "13705", "produto": "Arquivo 4 Gavetas T25 Pratica", "linha": "PRATICA", "larg": 0.465, "prof": 0.45, "alt": 1.23, "preco_base": 707.71, "preco_final": 893.58}, {"codigo": "13708", "produto": "Gaveteiro 4 Gavetas T25 Pratica", "linha": "PRATICA", "larg": 0.42, "prof": 0.4, "alt": 0.6, "preco_base": 419.53, "preco_final": 529.71}, {"codigo": "13070", "produto": "Armário Diretor Pratica", "linha": "PRATICA", "larg": 0.8, "prof": 0.4, "alt": 1.62, "preco_base": 678.01, "preco_final": 856.08}, {"codigo": "13093", "produto": "Armário Executivo Pratica", "linha": "PRATICA", "larg": 0.8, "prof": 0.4, "alt": 1.62, "preco_base": 581.02, "preco_final": 733.61}, {"codigo": "13644", "produto": "Armário Diretor C/ Vão Pratica", "linha": "PRATICA", "larg": 1.29, "prof": 0.4, "alt": 1.62, "preco_base": 856.91, "preco_final": 1081.95}, {"codigo": "13099", "produto": "Armário Secretária Pratica", "linha": "PRATICA", "larg": 0.8, "prof": 0.4, "alt": 0.75, "preco_base": 377.32, "preco_final": 476.42}, {"codigo": "13105", "produto": "Credenza Com Vão Pratica", "linha": "PRATICA", "larg": 1.29, "prof": 0.4, "alt": 0.75, "preco_base": 558.71, "preco_final": 705.44}, {"codigo": "13461", "produto": "Arquivo 4 Gavetas T30 Pratica", "linha": "PRATICA", "larg": 0.465, "prof": 0.45, "alt": 1.23, "preco_base": 701.45, "preco_final": 885.67}, {"codigo": "13470", "produto": "Gaveteiro 4 Gavetas T30 Pratica", "linha": "PRATICA", "larg": 0.42, "prof": 0.4, "alt": 0.6, "preco_base": 411.42, "preco_final": 519.47}, {"codigo": "12986", "produto": "Mesa C/Gaveta 1,20 Pratica", "linha": "PRATICA", "larg": 1.2, "prof": 0.6, "alt": 0.75, "preco_base": 365.02, "preco_final": 460.89}, {"codigo": "12954", "produto": "Mesa C/Gaveta 1,50 Pratica", "linha": "PRATICA", "larg": 1.5, "prof": 0.6, "alt": 0.75, "preco_base": 404.02, "preco_final": 510.12}, {"codigo": "13121", "produto": "Mesa 1,20 Pratica", "linha": "PRATICA", "larg": 1.2, "prof": 0.6, "alt": 0.75, "preco_base": 325.66, "preco_final": 411.19}, {"codigo": "13127", "produto": "Mesa 1,50 Pratica", "linha": "PRATICA", "larg": 1.5, "prof": 0.6, "alt": 0.75, "preco_base": 364.65, "preco_final": 460.42}, {"codigo": "13428", "produto": "Mesa Apoio 0,70 Pratica", "linha": "PRATICA", "larg": 0.7, "prof": 0.4, "alt": 0.75, "preco_base": 156.6, "preco_final": 197.73}, {"codigo": "10640", "produto": "Mesa Auxiliar T30 Eco", "linha": "PRATICA", "larg": 0.8, "prof": 0.6, "alt": 0.75, "preco_base": 302.68, "preco_final": 382.17}, {"codigo": "10641", "produto": "Mesa Recepçao T30 Eco", "linha": "PRATICA", "larg": 1, "prof": 0.6, "alt": 0.75, "preco_base": 332.14, "preco_final": 419.37}, {"codigo": "10642", "produto": "Mesa Secretária T30 Eco", "linha": "PRATICA", "larg": 1.2, "prof": 0.6, "alt": 0.75, "preco_base": 360.56, "preco_final": 455.26}, {"codigo": "10643", "produto": "Mesa Gerente T30 Eco", "linha": "PRATICA", "larg": 1.37, "prof": 0.6, "alt": 0.75, "preco_base": 385.63, "preco_final": 486.9}, {"codigo": "10644", "produto": "Mesa Supervisor T30 Eco", "linha": "PRATICA", "larg": 1.5, "prof": 0.6, "alt": 0.75, "preco_base": 402.73, "preco_final": 508.49}, {"codigo": "10645", "produto": "Mesa Diretor T30 Eco", "linha": "PRATICA", "larg": 1.6, "prof": 0.6, "alt": 0.75, "preco_base": 426.6, "preco_final": 538.63}, {"codigo": "13387", "produto": "Armário Diretor Pratica", "linha": "PRATICA", "larg": 0.8, "prof": 0.4, "alt": 1.62, "preco_base": 691.24, "preco_final": 872.78}, {"codigo": "13395", "produto": "Armário Executivo Pratica", "linha": "PRATICA", "larg": 0.8, "prof": 0.4, "alt": 1.62, "preco_base": 590.8, "preco_final": 745.96}, {"codigo": "13647", "produto": "Armário Diretor C/ Vão Pratica", "linha": "PRATICA", "larg": 1.29, "prof": 0.4, "alt": 1.62, "preco_base": 874.46, "preco_final": 1104.11}, {"codigo": "13400", "produto": "Armário Secretária Pratica", "linha": "PRATICA", "larg": 0.8, "prof": 0.4, "alt": 0.75, "preco_base": 382.53, "preco_final": 482.99}, {"codigo": "13408", "produto": "Credenza Com Vão Pratica", "linha": "PRATICA", "larg": 1.29, "prof": 0.4, "alt": 0.75, "preco_base": 569.43, "preco_final": 718.98}, {"codigo": "13706", "produto": "Arquivo 4 Gavetas T40 Pratica", "linha": "PRATICA", "larg": 0.465, "prof": 0.45, "alt": 1.23, "preco_base": 717.65, "preco_final": 906.13}, {"codigo": "13709", "produto": "Gaveteiro 4 Gavetas T40 Pratica", "linha": "PRATICA", "larg": 0.42, "prof": 0.4, "alt": 0.6, "preco_base": 418.35, "preco_final": 528.22}, {"codigo": "13654", "produto": "Mesa C/Gaveta 1,20 Pratica", "linha": "PRATICA", "larg": 1.2, "prof": 0.6, "alt": 0.75, "preco_base": 420.77, "preco_final": 531.27}, {"codigo": "13663", "produto": "Mesa C/Gaveta 1,50 Pratica", "linha": "PRATICA", "larg": 1.5, "prof": 0.6, "alt": 0.75, "preco_base": 456.09, "preco_final": 575.88}, {"codigo": "13667", "produto": "Mesa 1,20 Pratica", "linha": "PRATICA", "larg": 1.2, "prof": 0.6, "alt": 0.75, "preco_base": 338.92, "preco_final": 427.93}, {"codigo": "13672", "produto": "Mesa 1,50 Pratica", "linha": "PRATICA", "larg": 1.5, "prof": 0.6, "alt": 0.75, "preco_base": 374.21, "preco_final": 472.49}, {"codigo": "13675", "produto": "Mesa Apoio 0,70 Pratica", "linha": "PRATICA", "larg": 0.7, "prof": 0.4, "alt": 0.75, "preco_base": 165.76, "preco_final": 209.3}, {"codigo": "8188", "produto": "NICHO PRATA COM 9 VÃOS", "linha": "COMPLEMENTOS", "larg": 1.33, "prof": 0.3, "alt": 1.26, "preco_base": 663.15, "preco_final": 837.31}, {"codigo": "8189", "produto": "NICHO PRATA COM 10 VÃOS", "linha": "COMPLEMENTOS", "larg": 0.74, "prof": 0.3, "alt": 1.85, "preco_base": 584.28, "preco_final": 737.72}, {"codigo": "8190", "produto": "NICHO PRATA COM 12 VÃOS", "linha": "COMPLEMENTOS", "larg": 0.74, "prof": 0.3, "alt": 2.21, "preco_base": 740.98, "preco_final": 935.58}, {"codigo": "4680", "produto": "Aparador Ametista", "linha": "COMPLEMENTOS", "larg": 1, "prof": 0.35, "alt": 0.93, "preco_base": 582.3, "preco_final": 735.23}, {"codigo": "1889", "produto": "Nicho 0,30 Plus", "linha": "COMPLEMENTOS", "larg": 0.35, "prof": 0.25, "alt": 0.35, "preco_base": 76.38, "preco_final": 96.43}, {"codigo": "5007", "produto": "Nicho 0,50 Plus", "linha": "COMPLEMENTOS", "larg": 0.5, "prof": 0.25, "alt": 0.35, "preco_base": 96.21, "preco_final": 121.48}, {"codigo": "5008", "produto": "Nicho 0,70 Plus", "linha": "COMPLEMENTOS", "larg": 0.7, "prof": 0.25, "alt": 0.35, "preco_base": 114.78, "preco_final": 144.92}, {"codigo": "5009", "produto": "Nicho 0,90 Plus", "linha": "COMPLEMENTOS", "larg": 0.9, "prof": 0.25, "alt": 0.35, "preco_base": 135.03, "preco_final": 170.5}, {"codigo": "1890", "produto": "Nicho 0,30 Diamante", "linha": "COMPLEMENTOS", "larg": 0.35, "prof": 0.25, "alt": 0.35, "preco_base": 88.68, "preco_final": 111.97}, {"codigo": "5010", "produto": "Nicho 0,50 Diamante", "linha": "COMPLEMENTOS", "larg": 0.5, "prof": 0.25, "alt": 0.35, "preco_base": 118.15, "preco_final": 149.18}, {"codigo": "5011", "produto": "Nicho 0,70 Diamante", "linha": "COMPLEMENTOS", "larg": 0.7, "prof": 0.25, "alt": 0.35, "preco_base": 143.47, "preco_final": 181.15}, {"codigo": "5012", "produto": "Nicho 0,90 Diamante", "linha": "COMPLEMENTOS", "larg": 0.9, "prof": 0.25, "alt": 0.35, "preco_base": 168.79, "preco_final": 213.12}, {"codigo": "8336", "produto": "Nicho 0,42 Hexagonal", "linha": "COMPLEMENTOS", "larg": 0.42, "prof": 0.15, "alt": 0.365, "preco_base": 160.84, "preco_final": 203.09}, {"codigo": "8337", "produto": "Nicho 0,51 Hexagonal", "linha": "COMPLEMENTOS", "larg": 0.515, "prof": 0.2, "alt": 0.45, "preco_base": 190.92, "preco_final": 241.06}, {"codigo": "7475", "produto": "PRATELEIRA AVULSA PARA ARMARIOS", "linha": "COMPLEMENTOS", "larg": 77, "prof": 37, "alt": 0.015, "preco_base": 43.34, "preco_final": 54.72}, {"codigo": "7477", "produto": "PRATEL AVULSA PARA ARMARIOS 1 PT", "linha": "COMPLEMENTOS", "larg": 38, "prof": 37, "alt": 0.015, "preco_base": 24.07, "preco_final": 30.39}, {"codigo": "1984", "produto": "Calha Horizontal 1,40 (Und)", "linha": "COMPLEMENTOS", "larg": 1.4, "prof": null, "alt": null, "preco_base": 166.45, "preco_final": 210.16}, {"codigo": "3788", "produto": "Calha Horizontal 1,20 (Und)", "linha": "COMPLEMENTOS", "larg": 1.2, "prof": null, "alt": null, "preco_base": 152.56, "preco_final": 192.63}, {"codigo": "3789", "produto": "Calha Horizontal 1,05 (Und)", "linha": "COMPLEMENTOS", "larg": 1.05, "prof": null, "alt": null, "preco_base": 138.69, "preco_final": 175.12}, {"codigo": "11740", "produto": "Carregador Por Indução", "linha": "COMPLEMENTOS", "larg": null, "prof": null, "alt": null, "preco_base": 83.96, "preco_final": 106.01}, {"codigo": "9900", "produto": "Kit Tomada Slim (Und)", "linha": "COMPLEMENTOS", "larg": null, "prof": null, "alt": null, "preco_base": 159.14, "preco_final": 200.93}, {"codigo": "663", "produto": "Passa Fio ( Canoplas )", "linha": "COMPLEMENTOS", "larg": null, "prof": null, "alt": null, "preco_base": 6.38, "preco_final": 8.06}, {"codigo": "4974", "produto": "Arm Aereo Basculante 0,70 Prata", "linha": "COMPLEMENTOS", "larg": 0.7, "prof": 0.35, "alt": 0.4, "preco_base": 245.92, "preco_final": 310.5}, {"codigo": "4978", "produto": "Arm Aereo Basculante 0,80 Prata", "linha": "COMPLEMENTOS", "larg": 0.8, "prof": 0.35, "alt": 0.4, "preco_base": 267.89, "preco_final": 338.24}, {"codigo": "4982", "produto": "Arm Aereo Basculante 0,90 Prata", "linha": "COMPLEMENTOS", "larg": 0.9, "prof": 0.35, "alt": 0.4, "preco_base": 314.66, "preco_final": 397.3}, {"codigo": "4986", "produto": "Arm Aereo Basculante 1,00 Prata", "linha": "COMPLEMENTOS", "larg": 1, "prof": 0.35, "alt": 0.4, "preco_base": 324.02, "preco_final": 409.11}, {"codigo": "4990", "produto": "Arm Aereo Basculante 1,10 Prata", "linha": "COMPLEMENTOS", "larg": 1.1, "prof": 0.35, "alt": 0.4, "preco_base": 344.28, "preco_final": 434.7}, {"codigo": "4994", "produto": "Arm Aereo Basculante 1,20 Prata", "linha": "COMPLEMENTOS", "larg": 1.2, "prof": 0.35, "alt": 0.4, "preco_base": 364.56, "preco_final": 460.3}, {"codigo": "5013", "produto": "Prateleira Linear 1,00 Diamante", "linha": "COMPLEMENTOS", "larg": 1, "prof": 0.255, "alt": null, "preco_base": 185.67, "preco_final": 234.44}, {"codigo": "5014", "produto": "Prateleira Linear 1,20 Diamante", "linha": "COMPLEMENTOS", "larg": 1.2, "prof": 0.255, "alt": null, "preco_base": 261.63, "preco_final": 330.34}, {"codigo": "5015", "produto": "Prateleira Linear 1,37 Diamante", "linha": "COMPLEMENTOS", "larg": 1.37, "prof": 0.255, "alt": null, "preco_base": 270.07, "preco_final": 340.99}, {"codigo": "5016", "produto": "Prateleira Linear 1,60 Diamante", "linha": "COMPLEMENTOS", "larg": 1.6, "prof": 0.255, "alt": null, "preco_base": 286.95, "preco_final": 362.31}, {"codigo": "1846", "produto": "Porta Teclado Retrátil Plus", "linha": "COMPLEMENTOS", "larg": 0.68, "prof": 0.35, "alt": null, "preco_base": 92.83, "preco_final": 117.21}, {"codigo": "3092", "produto": "Porta CPU Skate Plus", "linha": "COMPLEMENTOS", "larg": 0.46, "prof": 0.25, "alt": 0.07, "preco_base": 69.21, "preco_final": 87.39}, {"codigo": "3016", "produto": "Porta CPU Skate Prata (ACETINADO)", "linha": "COMPLEMENTOS", "larg": 0.46, "prof": 0.25, "alt": 0.07, "preco_base": 69.21, "preco_final": 87.39}, {"codigo": "1269", "produto": "Porta CPU/No-Break Prata", "linha": "COMPLEMENTOS", "larg": 0.28, "prof": 0.46, "alt": 0.3, "preco_base": 110.29, "preco_final": 139.25}, {"codigo": "3093", "produto": "Lixeira Plus", "linha": "COMPLEMENTOS", "larg": 0.26, "prof": 0.25, "alt": 0.3, "preco_base": 57.39, "preco_final": 72.47}, {"codigo": "858", "produto": "Suporte de Monitor", "linha": "COMPLEMENTOS", "larg": 0.25, "prof": 0.25, "alt": 0.085, "preco_base": 27.0, "preco_final": 34.09}, {"codigo": "5000", "produto": "Gaveteiro Fixo 1 Gavetas Plus", "linha": "COMPLEMENTOS", "larg": 0.37, "prof": 0.41, "alt": 0.11, "preco_base": 121.15, "preco_final": 152.97}, {"codigo": "4188", "produto": "Gaveteiro Fixo 2 Gavetas Plus", "linha": "COMPLEMENTOS", "larg": 0.37, "prof": 0.41, "alt": 0.2, "preco_base": 173.08, "preco_final": 218.54}, {"codigo": "4190", "produto": "Gaveteiro Fixo 3 Gavetas Plus", "linha": "COMPLEMENTOS", "larg": 0.37, "prof": 0.41, "alt": 0.34, "preco_base": 226.04, "preco_final": 285.4}];
+document.getElementById('catCount').textContent = CATALOG.length + ' ';
+
+const LINHAS = [...new Set(CATALOG.map(p=>p.linha))];
+
+let quoteItems = []; // {id, codigo, produto, linha, qty, precoBase, precoFinal}
+let pendingItems = []; // {texto, qty}
+let uid = 1;
+
+function norm(s){
+  return (s||'').toString().toLowerCase()
+    .normalize('NFD').replace(/[\u0300-\u036f]/g,'')
+    .replace(/[.,]/g,' ')
+    .replace(/\s+/g,' ').trim();
+}
+
+function fmtBRL(v){
+  return 'R$ ' + (v||0).toLocaleString('pt-BR', {minimumFractionDigits:2, maximumFractionDigits:2});
+}
+
+function priceOf(item){
+  return item.precoBase ?? item.precoFinal ?? 0;
+}
+
+// ---------- SEARCH ----------
+const STOPWORDS = new Set(['de','da','do','das','dos','e','o','a','os','as','em','no','na','com','para','por','um','uma']);
+const CHAIR_WORDS = ['cadeira','poltrona'];
+
+function parseDims(query){
+  const m = query.match(/\d+(?:[.,]\d+)?\s*[xX]\s*\d+(?:[.,]\d+)?(?:\s*[xX]\s*\d+(?:[.,]\d+)?)?/);
+  if(!m) return [];
+  const nums = m[0].match(/\d+(?:[.,]\d+)?/g) || [];
+  return nums
+    .map(s => parseFloat(s.replace(',', '.')))
+    .map(v => v > 10 ? v/1000 : v)
+    .filter(v => v >= 0.1 && v <= 3.5);
+}
+
+function dimScore(queryDims, product){
+  if(queryDims.length < 2) return 0;
+  const prodDims = [product.larg, product.prof, product.alt].filter(v => typeof v === 'number');
+  if(prodDims.length < 2) return 0;
+  const sortedQ = [...queryDims].sort((a,b)=>b-a);
+  const sortedP = [...prodDims].sort((a,b)=>b-a);
+  const n = Math.min(sortedQ.length, sortedP.length);
+  let totalErr = 0;
+  for(let i=0;i<n;i++){
+    totalErr += Math.abs(sortedQ[i]-sortedP[i]) / Math.max(sortedP[i], 0.01);
+  }
+  const avgErr = totalErr / n;
+  if(avgErr <= 0.08) return 60;
+  if(avgErr <= 0.20) return 25;
+  if(avgErr <= 0.40) return 0;
+  return -60;
+}
+
+function scoreMatch(query, product){
+  const q = norm(query);
+  const name = norm(product.produto);
+  const qIsChair = CHAIR_WORDS.some(w=>q.includes(w));
+  const nameIsChair = CHAIR_WORDS.some(w=>name.includes(w));
+  if(qIsChair && !nameIsChair) return 0;
+  const qTokens = q.split(' ').filter(Boolean).filter(t=>!STOPWORDS.has(t));
+  const code = norm(product.codigo);
+  let score = 0;
+  if(name.includes(q) && q.length>2) score += 40;
+  if(code === q) score += 100;
+  qTokens.forEach(tok=>{
+    if(tok.length<2) return;
+    if(name.split(' ').includes(tok)) score += 12;
+    else if(name.includes(tok)) score += 6;
+  });
+  score += dimScore(parseDims(query), product);
+  return score;
+}
+
+function searchCatalog(query, limit=8){
+  if(!query || query.trim().length<2) return [];
+  const scored = CATALOG.map(p=>({p, s:scoreMatch(query,p)})).filter(x=>x.s>0);
+  scored.sort((a,b)=>b.s-a.s);
+  return scored.slice(0,limit).map(x=>x.p);
+}
+
+const searchBox = document.getElementById('searchBox');
+const searchResults = document.getElementById('searchResults');
+
+searchBox.addEventListener('input', ()=>{
+  const results = searchCatalog(searchBox.value);
+  renderSearchResults(results);
+});
+
+function dims(p){
+  const parts = [];
+  if(p.larg) parts.push(p.larg.toFixed(2).replace('.',','));
+  if(p.prof) parts.push(p.prof.toFixed(2).replace('.',','));
+  if(p.alt) parts.push(p.alt.toFixed(2).replace('.',','));
+  return parts.length ? parts.join(' x ') + ' m' : '';
+}
+
+function renderSearchResults(results, onPick){
+  searchResults.innerHTML = '';
+  if(results.length===0){
+    searchResults.innerHTML = '<div class="empty" style="padding:12px 4px;">Nada encontrado</div>';
+    return;
+  }
+  results.forEach(p=>{
+    const div = document.createElement('div');
+    div.className = 'result-item';
+    const price = p.preco_base ?? p.preco_final;
+    div.innerHTML = `
+      <div class="info">
+        <span class="tag">${p.linha}</span>
+        <span class="nm">${p.produto}</span>
+        <div class="meta">Cód. ${p.codigo}${dims(p) ? ' · '+dims(p) : ''} · ${fmtBRL(price)}</div>
+      </div>
+      <button class="btn btn-sm btn-primary">+</button>
+    `;
+    div.querySelector('button').onclick = ()=>{
+      if(onPick){ onPick(p); }
+      else { addItem(p, 1); }
+    };
+    searchResults.appendChild(div);
+  });
+}
+
+// ---------- QUOTE MANAGEMENT ----------
+function addItem(product, qty){
+  const existing = quoteItems.find(i=>i.codigo===product.codigo && i.linha===product.linha);
+  if(existing){
+    existing.qty += qty;
+  } else {
+    quoteItems.push({
+      id: uid++,
+      codigo: product.codigo,
+      produto: product.produto,
+      linha: product.linha,
+      qty: qty,
+      precoBase: product.preco_base,
+      precoFinal: product.preco_final,
+    });
+  }
+  renderQuote();
+}
+
+function removeItem(id){
+  quoteItems = quoteItems.filter(i=>i.id!==id);
+  renderQuote();
+}
+
+function changeLinha(id, novaLinha){
+  const item = quoteItems.find(i=>i.id===id);
+  if(!item) return;
+  const match = CATALOG.find(p => p.linha===novaLinha && norm(p.produto)===norm(item.produto));
+  const fallback = CATALOG.filter(p=>p.linha===novaLinha).map(p=>({p, s:scoreMatch(item.produto,p)})).sort((a,b)=>b.s-a.s)[0];
+  const chosen = match || (fallback && fallback.s>10 ? fallback.p : null);
+  if(chosen){
+    item.codigo = chosen.codigo;
+    item.produto = chosen.produto;
+    item.linha = chosen.linha;
+    item.precoBase = chosen.preco_base;
+    item.precoFinal = chosen.preco_final;
+  } else {
+    item.linha = novaLinha;
+  }
+  renderQuote();
+}
+
+function renderQuote(){
+  const tbody = document.getElementById('quoteBody');
+  tbody.innerHTML = '';
+  if(quoteItems.length===0){
+    tbody.innerHTML = '<tr><td colspan="6" class="empty">Nenhum item adicionado ainda. Busque ou cole um pedido ao lado.</td></tr>';
+  }
+  let subtotal = 0;
+  quoteItems.forEach(item=>{
+    const unit = priceOf(item);
+    const total = unit * item.qty;
+    subtotal += total;
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>${item.produto}<div style="font-size:11px;color:var(--muted);">Cód. ${item.codigo}</div></td>
+      <td>
+        <select class="linha-select" data-id="${item.id}">
+          ${LINHAS.map(l=>`<option value="${l}" ${l===item.linha?'selected':''}>${l}</option>`).join('')}
+        </select>
+      </td>
+      <td style="text-align:center;"><input type="text" class="qty" data-id="${item.id}" value="${item.qty}"></td>
+      <td class="num">${fmtBRL(unit)}</td>
+      <td class="num">${fmtBRL(total)}</td>
+      <td style="text-align:center;"><button class="btn btn-sm btn-ghost" data-id="${item.id}">✕</button></td>
+    `;
+    tbody.appendChild(tr);
+  });
+
+  tbody.querySelectorAll('input.qty').forEach(inp=>{
+    inp.addEventListener('change', e=>{
+      const id = Number(e.target.dataset.id);
+      const item = quoteItems.find(i=>i.id===id);
+      const v = parseInt(e.target.value.replace(/\D/g,''))||1;
+      item.qty = v;
+      renderQuote();
+    });
+  });
+  tbody.querySelectorAll('select.linha-select').forEach(sel=>{
+    sel.addEventListener('change', e=>{
+      changeLinha(Number(e.target.dataset.id), e.target.value);
+    });
+  });
+  tbody.querySelectorAll('button[data-id]').forEach(btn=>{
+    btn.addEventListener('click', e=>{
+      removeItem(Number(e.target.dataset.id));
+    });
+  });
+
+  const margemPct = parseFloat(document.getElementById('margemPct').value)||0;
+  const montPct = parseFloat(document.getElementById('montPct').value)||0;
+  const frete = parseFloat((document.getElementById('freteVal').value||'0').replace(',','.'))||0;
+  const margem = subtotal * (margemPct/100);
+  const montagem = subtotal * (montPct/100);
+  const total = subtotal + margem + montagem + frete;
+  document.getElementById('tSub').textContent = fmtBRL(subtotal);
+  document.getElementById('tMargem').textContent = fmtBRL(margem);
+  document.getElementById('tMont').textContent = fmtBRL(montagem);
+  document.getElementById('tFrete').textContent = fmtBRL(frete);
+  document.getElementById('tTotal').textContent = fmtBRL(total);
+
+  renderPending();
+}
+
+function renderPending(){
+  const card = document.getElementById('pendingCard');
+  const list = document.getElementById('pendingList');
+  if(pendingItems.length===0){ card.style.display='none'; return; }
+  card.style.display='block';
+  list.innerHTML='';
+  pendingItems.forEach((p,idx)=>{
+    const div = document.createElement('div');
+    div.className='pend-item';
+    div.innerHTML = `<span><b>Não encontrado:</b> ${p.texto} ${p.qty?('(qtd. '+p.qty+')'):''}</span>
+      <button class="btn btn-sm btn-ghost" data-idx="${idx}">remover</button>`;
+    div.querySelector('button').onclick = ()=>{
+      pendingItems.splice(idx,1);
+      renderPending();
+    };
+    list.appendChild(div);
+  });
+}
+
+document.getElementById('montPct').addEventListener('input', renderQuote);
+document.getElementById('margemPct').addEventListener('input', renderQuote);
+document.getElementById('freteVal').addEventListener('input', renderQuote);
+
+document.getElementById('btnClear').addEventListener('click', ()=>{
+  if(confirm('Limpar todos os itens do orçamento atual?')){
+    quoteItems = [];
+    pendingItems = [];
+    renderQuote();
+  }
+});
+
+document.getElementById('btnCsv').addEventListener('click', ()=>{
+  let csv = 'Item;Codigo;Linha;Qtd;Unitario;Total\n';
+  quoteItems.forEach(item=>{
+    const unit = priceOf(item);
+    csv += `${item.produto};${item.codigo};${item.linha};${item.qty};${unit.toFixed(2)};${(unit*item.qty).toFixed(2)}\n`;
+  });
+  const blob = new Blob([csv], {type:'text/csv;charset=utf-8;'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'orcamento_riovetti.csv';
+  a.click();
+});
+
+document.getElementById('btnPrint').addEventListener('click', ()=>{
+  window.print();
+});
+
+// ---------- AI ORDER INTERPRETATION ----------
+async function interpretOrder(text){
+  const response = await fetch("/api/interpretar-pedido", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ texto: text })
+  });
+  const data = await response.json();
+  if(!response.ok){ throw new Error(data.error || 'Erro ao interpretar pedido'); }
+  const textBlocks = (data.content||[]).filter(b=>b.type==='text').map(b=>b.text).join('\n');
+  const clean = textBlocks.replace(/```json|```/g,'').trim();
+  return JSON.parse(clean);
+}
+
+document.getElementById('btnInterpret').addEventListener('click', async ()=>{
+  const raw = document.getElementById('rawOrder').value.trim();
+  const status = document.getElementById('interpretStatus');
+  if(!raw){ status.textContent = 'Cole o texto do pedido primeiro.'; return; }
+  status.textContent = 'Lendo pedido...';
+  document.getElementById('btnInterpret').disabled = true;
+  try{
+    const items = await interpretOrder(raw);
+    buildReviewState(items);
+    showReview('Pedido por texto');
+    status.textContent = '';
+  }catch(err){
+    console.error(err);
+    status.textContent = 'Não consegui interpretar o texto — tente adicionar manualmente pela busca.';
+  }
+  document.getElementById('btnInterpret').disabled = false;
+});
+
+let reviewState = []; // {id, ambiente, textoOriginal, qty, matched (product|null), checked}
+let reviewUid = 1;
+
+function buildReviewState(items){
+  reviewState = items.map(it=>{
+    const matches = searchCatalog(it.item, 1);
+    const matched = (matches.length>0 && scoreMatch(it.item, matches[0]) >= 12) ? matches[0] : null;
+    return {
+      id: reviewUid++,
+      ambiente: it.ambiente || '',
+      textoOriginal: it.item,
+      qty: it.quantidade || 1,
+      estimado: !!it.estimado,
+      matched,
+      checked: true,
+    };
+  });
+}
+
+function showReview(sourceLabel){
+  document.getElementById('reviewSourceLabel').textContent = sourceLabel;
+  document.getElementById('reviewCard').style.display = 'block';
+  renderReview();
+  document.getElementById('reviewCard').scrollIntoView({behavior:'smooth', block:'start'});
+}
+
+function renderReview(){
+  const container = document.getElementById('reviewList');
+  container.innerHTML = '';
+  if(reviewState.length===0){
+    container.innerHTML = '<div class="empty">Nada para revisar.</div>';
+  }
+  const groups = {};
+  reviewState.forEach(r=>{
+    const key = r.ambiente || '__sem_ambiente__';
+    if(!groups[key]) groups[key] = [];
+    groups[key].push(r);
+  });
+  Object.keys(groups).forEach(key=>{
+    if(key !== '__sem_ambiente__'){
+      const h = document.createElement('div');
+      h.className = 'review-amb';
+      h.textContent = key;
+      container.appendChild(h);
+    }
+    groups[key].forEach(r=>{
+      const row = document.createElement('div');
+      row.className = 'review-row';
+      const matchHtml = r.matched
+        ? `<div class="match">${r.matched.produto}<span class="tag" style="margin-left:6px;">${r.matched.linha}</span></div>`
+        : `<div class="match notfound">Não encontrado no catálogo</div>`;
+      row.innerHTML = `
+        <input type="checkbox" data-id="${r.id}" ${r.checked?'checked':''}>
+        <div class="info">
+          <div class="orig">Pedido: "${r.textoOriginal}"${r.estimado?' · <span class="badge-warn">estimado</span>':''}</div>
+          ${matchHtml}
+        </div>
+        <input type="text" class="rqty" data-id="${r.id}" value="${r.qty}">
+      `;
+      row.querySelector('input[type=checkbox]').addEventListener('change', e=>{
+        reviewState.find(x=>x.id===r.id).checked = e.target.checked;
+      });
+      row.querySelector('input.rqty').addEventListener('change', e=>{
+        const v = parseInt(e.target.value.replace(/\\D/g,''))||1;
+        reviewState.find(x=>x.id===r.id).qty = v;
+      });
+      container.appendChild(row);
+    });
+  });
+  const total = reviewState.length;
+  const semMatch = reviewState.filter(r=>!r.matched).length;
+  document.getElementById('reviewSummary').textContent = `${total} item(ns) extraído(s), ${semMatch} sem correspondência no catálogo.`;
+}
+
+document.getElementById('btnConfirmReview').addEventListener('click', ()=>{
+  reviewState.filter(r=>r.checked).forEach(r=>{
+    if(r.matched){
+      addItem(r.matched, r.qty);
+    } else {
+      const label = r.ambiente ? `${r.textoOriginal} (${r.ambiente})` : r.textoOriginal;
+      pendingItems.push({texto: label, qty: r.qty});
+    }
+  });
+  renderQuote();
+  document.getElementById('reviewCard').style.display = 'none';
+  reviewState = [];
+});
+
+document.getElementById('btnCancelReview').addEventListener('click', ()=>{
+  reviewState = [];
+  document.getElementById('reviewCard').style.display = 'none';
+});
+
+function fileToBase64(file){
+  return new Promise((resolve, reject)=>{
+    const r = new FileReader();
+    r.onload = ()=> resolve(r.result.split(',')[1]);
+    r.onerror = ()=> reject(new Error('Falha ao ler o arquivo'));
+    r.readAsDataURL(file);
+  });
+}
+
+async function interpretPlanta(base64Pdf){
+  const response = await fetch("/api/interpretar-planta", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ pdfBase64: base64Pdf })
+  });
+  const data = await response.json();
+  if(!response.ok){ throw new Error(data.error || 'Erro ao interpretar planta'); }
+  const textBlocks = (data.content||[]).filter(b=>b.type==='text').map(b=>b.text).join('\\n');
+  const clean = textBlocks.replace(/```json|```/g,'').trim();
+  return JSON.parse(clean);
+}
+
+document.getElementById('btnPlanta').addEventListener('click', async ()=>{
+  const fileInput = document.getElementById('plantaFile');
+  const status = document.getElementById('plantaStatus');
+  const file = fileInput.files[0];
+  if(!file){ status.textContent = 'Selecione o PDF da planta primeiro.'; return; }
+  status.textContent = 'Lendo a planta (pode levar um minuto)...';
+  document.getElementById('btnPlanta').disabled = true;
+  try{
+    const base64 = await fileToBase64(file);
+    const items = await interpretPlanta(base64);
+    buildReviewState(items);
+    showReview('Planta: ' + file.name);
+    status.textContent = '';
+  }catch(err){
+    console.error(err);
+    status.textContent = 'Não consegui ler a planta — verifique se é um PDF válido, ou adicione os itens manualmente.';
+  }
+  document.getElementById('btnPlanta').disabled = false;
+});
+
+renderQuote();
+</script>
+</body>
+</html>
